@@ -19,7 +19,7 @@ public class Parser {
     ArrayList<O> Oids;
 
     
-    public String text = "S Y1 X  O1 Y2 I1 Y3 E";
+    public String text = "S Y1 X1 O1 Y2 I1 Y3 E";
 
     public Parser() {
         this.Oids = new ArrayList<>();
@@ -110,11 +110,11 @@ public class Parser {
                         return first;                
                     
                 }
-                
-                
             }
+            
         }        
-        
+        //Якщо ми сюди дійшли - то відсутній оператор кінця
+        System.err.println(warnings.get("E not found"));
         return null;
     }
     
@@ -131,6 +131,8 @@ public class Parser {
         
         
         while (curr.next != null){
+            
+            
             switch (curr.type){
                 case E:
                 case S:
@@ -155,6 +157,7 @@ public class Parser {
                     if (Oids.contains((O)curr)){
                         System.err.println(warnings.get("uniqe id") + curr.toString());
                     }else{
+                        Oids.add((O)curr);
                         if (((O)curr).end == null){
                             Operator end = findI(((O)curr));
                             if (end == null){
@@ -168,9 +171,11 @@ public class Parser {
                     }
                     break;
                 case I:
+                    
                     if (Iids.contains((I)curr)){
                         System.err.println(warnings.get("uniqe id") + curr.toString());
                     }else{
+                        Iids.add((I)curr);
                         if (((I)curr).start == null){
                             Operator srt = findO(((I)curr));
                             if (srt == null){
@@ -184,7 +189,7 @@ public class Parser {
                     }
                     break;
             }
-            
+            curr = curr.next;
             
         }
         
@@ -204,6 +209,7 @@ public class Parser {
             if(curr.type == Operator.Type.I && O.id.equals(curr.id)){
                 return curr;
             }
+            curr = curr.next;
         }
         return null;
     }
@@ -222,6 +228,7 @@ public class Parser {
             if(curr.type == Operator.Type.O && I.id.equals(curr.id)){
                 return curr;
             }
+            curr = curr.next;
         }
         
         return null;
@@ -235,12 +242,15 @@ public class Parser {
         warnings.put("uniqe id","All ids must be uniqe for same types of operator ");
         warnings.put("after X", "After X must be at least two operators ");
         warnings.put("Link not found", "Can`t found end/start for");
+        warnings.put("E not found", "LSA must end with a E");
     }
     public static void main(String [] args){
         
         Parser p = new Parser();
         Operator start = p.getTokens(p.text);
+        //p.linkTokens(start);
         Operator curr = start;
+        
         
         while(curr != null){
             System.out.println(curr);

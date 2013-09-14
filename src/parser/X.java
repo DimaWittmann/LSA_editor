@@ -14,6 +14,7 @@ public class X extends Operator{
     
     public X(int pos) {
         super(pos);
+        signal = true;
         type = Type.X;
     }
 
