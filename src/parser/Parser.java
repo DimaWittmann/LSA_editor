@@ -1,9 +1,11 @@
 package parser;
 
+import internal_representation.Connection;
+import internal_representation.LSAmatrix;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import static parser.Operator.Type.E;
+import static parser.Operator.Type.*;
 
 /**
  *
@@ -17,10 +19,7 @@ public class Parser {
     ArrayList<X> Xids;
     ArrayList<I> Iids;
     ArrayList<O> Oids;
-
     
-    public String text = "S Y1 X1 O1 Y2 I1 Y3 E";
-
     public Parser() {
         this.Oids = new ArrayList<>();
         this.Iids = new ArrayList<>();
@@ -30,7 +29,12 @@ public class Parser {
     }
     
     
-    
+    /**
+     * 
+     * @param text вхідні символи
+     * @return токени, послідовно зв'язані один за однис у порядку їх
+     * об'явлення в text
+     */
     public Operator getTokens(String text){
         boolean operator = true;
         String label = "";
@@ -118,18 +122,20 @@ public class Parser {
         return null;
     }
     
+    /**
+     * Перевірка всьго алгоритму на валідність.
+     * Створення зв'язків безумовних і умовних переходів. 
+     * @param start початковий токен
+     */
     public void linkTokens(Operator start){
-        
+        //TODO Реалізувати можливості декількох виходів для одного входу
         
         if(start.type != Operator.Type.S){
             System.err.println(warnings.get("firstS"));
         }
         
         Operator curr = start;
-        
 
-        
-        
         while (curr.next != null){
             
             
@@ -194,6 +200,7 @@ public class Parser {
         }
         
     }
+    
     //TODO Подумати, як краще спростити і з'єднати два методи
     private Operator findI(O O){
         
@@ -235,7 +242,9 @@ public class Parser {
     }
     
     
-    
+    /**
+     * Ініціалізація словника попереджень і помилок
+     */
     private void initWargnings(){
         warnings = new HashMap<>();
         warnings.put("firstS","First operator must be S");
@@ -244,17 +253,88 @@ public class Parser {
         warnings.put("Link not found", "Can`t found end/start for");
         warnings.put("E not found", "LSA must end with a E");
     }
+    
+    public LSAmatrix toMatrix(Operator start){
+        ArrayList<Operator> operational = new ArrayList<>();
+        
+        Operator curr = start;
+        while(curr.next != null){
+            if (curr.type == S||curr.type == Y||curr.type == E){
+                    operational.add(curr);
+            }
+            curr = curr.next;
+        }
+        
+        LSAmatrix matrix = new LSAmatrix(operational.size());
+        matrix.operationalTop = new ArrayList<>(operational);
+        
+        for (int i=0; i< operational.size();i++){
+            curr = operational.get(i);
+            Operator next = curr.next;
+            
+            switch(next.type){ 
+                case Y:
+                    addConnection(matrix, curr, new Connection((Y)next));                    
+                    break;
+                case X:
+                    
+                    break;
+                
+            }
+        }
+        
+        return null;
+    }
+    
+    private void findRoad(LSAmatrix matrix, Y from, Operator curr,
+            ArrayList<X> predX, ArrayList<Boolean> predInvert){
+
+        Operator next = curr.next;
+        switch(next.type){
+            case Y:
+                Connection conn = new Connection((Y) next);
+                conn.invert = new ArrayList<>(predInvert);
+                conn.logicalOp = new ArrayList<>(predX);
+
+                addConnection(matrix, curr, conn);
+                break;
+            case X:
+                
+                predX.add((X)next);
+                predInvert.add(Boolean.TRUE);
+                findRoad(matrix, from, next, predX , predInvert);
+                
+                
+                break;
+        }
+    }
+    /**
+     * Додавання з'єднання до матриці
+     * @param matrix
+     * @param to
+     * @param conn 
+     */
+    private void addConnection(LSAmatrix matrix, Operator to, Connection conn){
+        if (matrix.connections.containsKey(to)){
+                matrix.connections.get(to).add(conn);
+            }else{
+                matrix.connections.put(to, new ArrayList<Connection>());
+                matrix.connections.get(to).add(conn);
+            }
+    }
+    
     public static void main(String [] args){
         
         Parser p = new Parser();
-        Operator start = p.getTokens(p.text);
-        //p.linkTokens(start);
+        String text = "S Y1 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
+        Operator start = p.getTokens(text);
+        p.linkTokens(start);
         Operator curr = start;
         
         
         while(curr != null){
             System.out.println(curr);
-            curr = curr.next;
+            curr = curr.next();
         }
     }
     

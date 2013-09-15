@@ -4,7 +4,7 @@ package parser;
 import java.util.Objects;
 
 /**
- * Основа всі операторів ЛСА
+ * Основа всіх операторів ЛСА
  * @author wittmann
  */
 public class Operator {
