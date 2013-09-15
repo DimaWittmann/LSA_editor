@@ -4,6 +4,7 @@ import internal_representation.Connection;
 import internal_representation.LSAmatrix;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import static parser.Operator.Type.*;
 
@@ -277,34 +278,54 @@ public class Parser {
                     addConnection(matrix, curr, new Connection((Y)next));                    
                     break;
                 case X:
-                    
+                case O:
+                case I:
+                    findRoad(matrix, (Y)curr, next, new ArrayList<X>(), 
+                            new ArrayList<Boolean>());
                     break;
-                
+                case E:
+                    break;
             }
         }
         
-        return null;
+        return matrix;
     }
-    
+    /**
+     * Рекурсивний пошук всіх з'єднань через логічні умови і
+     * додавання знайдених до матриці
+     * @param matrix
+     * @param from
+     * @param curr
+     * @param predX
+     * @param predInvert 
+     */
     private void findRoad(LSAmatrix matrix, Y from, Operator curr,
             ArrayList<X> predX, ArrayList<Boolean> predInvert){
-
-        Operator next = curr.next;
-        switch(next.type){
+        // TODO розгорнути рекурсію!
+        switch(curr.type){
             case Y:
-                Connection conn = new Connection((Y) next);
+            case E:
+                Connection conn = new Connection(curr);
                 conn.invert = new ArrayList<>(predInvert);
                 conn.logicalOp = new ArrayList<>(predX);
 
-                addConnection(matrix, curr, conn);
+                addConnection(matrix, from, conn);
                 break;
             case X:
                 
-                predX.add((X)next);
+                predX.add((X)curr);
                 predInvert.add(Boolean.TRUE);
-                findRoad(matrix, from, next, predX , predInvert);
+                findRoad(matrix, from, curr.next, predX , predInvert);
                 
-                
+                predInvert.remove(predInvert.size()-1);
+                predInvert.add(Boolean.FALSE);
+                findRoad(matrix, from, curr.next.next, predX , predInvert);
+                break;
+            case I:
+                findRoad(matrix, from, curr.next, predX , predInvert);
+                break;
+            case O:
+                findRoad(matrix, from, curr.next(), predX , predInvert);
                 break;
         }
     }
@@ -315,12 +336,35 @@ public class Parser {
      * @param conn 
      */
     private void addConnection(LSAmatrix matrix, Operator to, Connection conn){
+        System.out.println(to.toString() + "->" + conn.destination.toString());
         if (matrix.connections.containsKey(to)){
                 matrix.connections.get(to).add(conn);
             }else{
                 matrix.connections.put(to, new ArrayList<Connection>());
                 matrix.connections.get(to).add(conn);
             }
+    }
+
+    
+    public Operator fromMaatrix(LSAmatrix matrix    ){
+        Operator start = matrix.operationalTop.get(0);
+        List<X> logOp = new ArrayList<>();
+        
+        for(int i=0;i<matrix.operationalTop.size();i++){
+            Operator curr = matrix.operationalTop.get(i);
+            List<Connection> conns = matrix.connections.get(curr);
+            for(Connection conn : conns){
+                for (X  X: conn.logicalOp ){
+                    
+                }
+            }
+            
+        }
+        
+        
+        
+        
+        return null;
     }
     
     public static void main(String [] args){
@@ -330,12 +374,14 @@ public class Parser {
         Operator start = p.getTokens(text);
         p.linkTokens(start);
         Operator curr = start;
-        
+        LSAmatrix matrix = p.toMatrix(start);
         
         while(curr != null){
             System.out.println(curr);
             curr = curr.next();
         }
+        
+        
     }
     
 }

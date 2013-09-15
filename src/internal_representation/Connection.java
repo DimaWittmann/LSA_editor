@@ -1,8 +1,8 @@
 package internal_representation;
 
 import java.util.ArrayList;
+import parser.Operator;
 import parser.X;
-import parser.Y;
 
 /**
  *
@@ -12,9 +12,9 @@ public class Connection {
 
     public ArrayList<X> logicalOp;
     public ArrayList<Boolean> invert;
-    public Y destination;
+    public Operator destination;
 
-    public Connection(Y dest){
+    public Connection(Operator dest){
         logicalOp = new ArrayList<>();
         invert = new ArrayList<>();
         this.destination = dest;
