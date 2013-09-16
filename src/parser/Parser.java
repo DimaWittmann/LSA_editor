@@ -1,5 +1,6 @@
 package parser;
 
+import GUI.Frame;
 import internal_representation.Connection;
 import internal_representation.LSAmatrix;
 import java.util.ArrayList;
@@ -336,7 +337,7 @@ public class Parser {
      * @param conn 
      */
     private void addConnection(LSAmatrix matrix, Operator to, Connection conn){
-        System.out.println(to.toString() + "->" + conn.destination.toString());
+        //System.out.println(to.toString() + "->" + conn.destination.toString());
         if (matrix.connections.containsKey(to)){
                 matrix.connections.get(to).add(conn);
             }else{
@@ -346,7 +347,7 @@ public class Parser {
     }
 
     
-    public Operator fromMaatrix(LSAmatrix matrix    ){
+    public Operator fromMatrix(LSAmatrix matrix    ){
         Operator start = matrix.operationalTop.get(0);
         List<X> logOp = new ArrayList<>();
         
@@ -368,7 +369,7 @@ public class Parser {
     }
     
     public static void main(String [] args){
-        
+        /**
         Parser p = new Parser();
         String text = "S Y1 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
         Operator start = p.getTokens(text);
@@ -379,7 +380,10 @@ public class Parser {
         while(curr != null){
             System.out.println(curr);
             curr = curr.next();
-        }
+        }*/
+        
+        Frame f = new Frame("Editor");
+        f.setVisible(true);
         
         
     }
