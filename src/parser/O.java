@@ -13,10 +13,7 @@ public class O extends Operator{
         type = Type.O;
     }
     
-    @Override
-    public String toString(){
-        return "O"+id;
-    }
+
 
     @Override
     public Operator next() {

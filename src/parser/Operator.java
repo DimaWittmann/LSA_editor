@@ -14,6 +14,7 @@ public class Operator {
     public String id;
     public Type type;
 
+    //TODO додати в конструктор обов'язкове зазначання id Operator(int pos, String id)
     public Operator(int pos) {
         this.id = null;
         this.pred = null;
@@ -29,7 +30,7 @@ public class Operator {
         if (obj == null){
             return false;
         }
-        if ( obj.getClass() == obj.getClass()){
+        if ( this.getClass() == obj.getClass()){
             if(this.id.equals(((Operator)obj).id) && this.pos == ((Operator)obj).pos){
                 return true;
             }
@@ -54,6 +55,9 @@ public class Operator {
             return next;
         }
     }
-    
+    @Override
+    public String toString() {
+        return type.toString()+id;
+    }
 }
 

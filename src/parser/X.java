@@ -11,10 +11,6 @@ public class X extends Operator{
         type = Type.X;
     }
 
-    @Override
-    public String toString() {
-        return this.pos+ ": X"+id;
-    }
 
     @Override
     public Operator next() {
@@ -33,10 +29,4 @@ public class X extends Operator{
         }
         
     }
-
-    
-    
-    
-    
-    
 }

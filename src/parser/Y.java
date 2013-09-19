@@ -10,11 +10,6 @@ public class Y extends Operator{
         super(pos);
         type = Type.Y;
     }
-
-    @Override
-    public String toString() {
-        return this.pos+ ": Y"+id;
-    }
     
     
 }

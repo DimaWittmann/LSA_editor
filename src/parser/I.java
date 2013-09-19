@@ -13,9 +13,5 @@ public class I extends Operator{
         type = Type.I;
     }
     
-    @Override
-    public String toString(){
-        return "I"+id;
-    }
     
 }

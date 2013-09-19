@@ -1,8 +1,6 @@
 package parser;
 
-import GUI.Frame;
 import internal_representation.LSAmatrix;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -260,7 +258,6 @@ public class Parser {
         
         LSAmatrix matrix = new LSAmatrix(operational.size());
         
-
         int i=0;
         for (Operator op : operational){
             matrix.ids[i] = op.type+op.id;
@@ -279,24 +276,164 @@ public class Parser {
     }
    
     
+    
+    /**
+     * Генерація графа з матриці
+     * @param matrix
+     * @return початок графа
+     */
     public Operator fromMatrix(LSAmatrix matrix){
-        return null;
+        ArrayList<Operator> operators = new ArrayList<>();
+        Operator start = null;
+        
+        int i = 0;
+        Operator pred = null;
+        for(String id:matrix.ids){
+            switch(id.charAt(0)){
+                case 'S':
+                    start = new S(i);
+                    operators.add(start);
+                    pred = start;
+                    break;
+                case 'X':
+                    X x = new X(i);
+                    operators.add(x);
+                    x.pred = pred;
+                    x.id = id.substring(1);
+                    pred.next = x;
+                    pred = x;
+                    break;
+                case 'Y':
+                    Y y = new Y(i);
+                    operators.add(y);
+                    y.pred = pred;
+                    y.id = id.substring(1);
+                    pred.next = y;
+                    pred = y;
+                    break;
+                case 'E':
+                    E e = new E(i);
+                    operators.add(e);
+                    e.pred = pred;
+                    break;
+            }
+            i++;
+            
+        }
+        
+        int numJumps = 0;
+        pred = null;
+        ArrayList<Operator> added = new ArrayList<>();
+        for (Operator curr: operators){
+            switch(curr.type){
+                case S:
+                    break;
+                case Y:
+                    Operator step = null;
+                    for (int j = 0; j < matrix.operationalTop.length; j++) {
+                        if(matrix.operationalTop[curr.pos][j] == 1){
+                            step = operators.get(j);
+                            break;
+                        }
+                    }
+                    if (curr.next() != step){    //додавання бузумовного переходу
+                        numJumps++;
+                    
+                        O out = new O(0);
+                        out.id = String.valueOf(numJumps);
+
+                        I in = new I(0);
+                        in.id = String.valueOf(numJumps);
+
+                        insertNextOperator(curr, out);
+                        out.end = in;
+                        
+                        insertPredOperator(step, in);
+                    }
+                    
+                    break;
+                case X:
+                    numJumps++;
+                    
+                    O out = new O(0);
+                    out.id = String.valueOf(numJumps);
+                    
+                    I in = new I(0);
+                    in.id = String.valueOf(numJumps);
+                    
+                    insertNextOperator(curr, out);
+                    out.end = in;
+                    
+                    Operator stepTrue = null;
+                    Operator stepFalse = null;
+                    for (int j = 0; j < matrix.operationalTop.length; j++) {
+                        if(matrix.operationalTop[curr.pos][j] == 1){
+                            stepTrue = operators.get(j);
+                        }else if(matrix.operationalTop[curr.pos][j] == 2){
+                            stepFalse = operators.get(j);
+                        }
+                    }
+                    
+                    assert (stepFalse == out.next);   //FIXME not implemented yet
+                    assert (stepTrue != null);
+                    //TODO зробити можливість переходу по false на умову чи безумовний перехід
+                    
+                    insertPredOperator(stepTrue, in);
+                    
+                    break;
+                case E:
+
+                    break;
+            }
+            if(!added.contains(curr)){ //FIXME не використовується
+                added.add(curr);
+            }
+            pred = curr;
+        }
+        
+        return start;
+    }
+    /**
+     * Додати оператор попереду іншого
+     * @param left оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertNextOperator(Operator left ,Operator center){
+        left.next.pred = center;
+        center.next = left.next;
+        left.next = center;
+        center.pred = left;
+    }
+    /**
+     * Додати оператор позаду іншого
+     * @param right оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertPredOperator(Operator right ,Operator center){
+        right.pred.next = center;
+        center.pred = right.pred;
+        right.pred = center;
+        center.next = right;
     }
     
     public static void main(String [] args){
         
         Parser p = new Parser();
-        String text = "S Y1 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
+        String text = "S Y2 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
         Operator start = p.getTokens(text);
         p.linkTokens(start);
-        Operator curr = start;
         
         
+
+        LSAmatrix matrix = p.toMatrix(start);
+        System.out.println(matrix);
+
+        Operator curr = p.fromMatrix(matrix);
+        System.out.println(text);
         while(curr != null){
-            System.out.println(curr);
-            curr = curr.next();
+            System.out.print(curr+ " ");
+            curr = curr.next;
         }
-        System.out.println(p.toMatrix(start));
         /*
         Frame f = new Frame("Editor");
         f.setVisible(true);

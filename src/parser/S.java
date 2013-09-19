@@ -14,9 +14,5 @@ public class S extends Operator{
         id = "";
     }
     
-    @Override
-    public String toString(){
-        return this.pos + ": S";
-    }
     
 }
