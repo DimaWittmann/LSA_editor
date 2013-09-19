@@ -20,7 +20,7 @@ public class O extends Operator{
 
     @Override
     public Operator next() {
-        return end;
+        return end.next();
     }
     
     

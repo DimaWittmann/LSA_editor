@@ -17,7 +17,5 @@ public class I extends Operator{
     public String toString(){
         return "I"+id;
     }
-
-    
     
 }

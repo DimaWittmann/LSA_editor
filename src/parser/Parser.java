@@ -1,11 +1,10 @@
 package parser;
 
 import GUI.Frame;
-import internal_representation.Connection;
 import internal_representation.LSAmatrix;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import static parser.Operator.Type.*;
 
@@ -75,7 +74,6 @@ public class Parser {
                         curr.pred = pred;
                         pred.next = curr;
                         
-                        pos++;
                         operator = false;
                         break;
                     case 'O':
@@ -84,8 +82,6 @@ public class Parser {
                         curr = new O(pos);
                         curr.pred = pred;
                         pred.next = curr;
-                        
-                        pos++;
                         operator = false;
                         break;
                     case 'X':
@@ -146,16 +142,10 @@ public class Parser {
                 case S:
                     break;
                 case Y:
-                    if (Yids.contains((Y)curr)){
-                        System.err.println(warnings.get("uniqe id")+ curr.toString());
-                    }else{
-                        Yids.add((Y)curr);
-                    }
+                    Yids.add((Y)curr);
                     break;
                 case X:
-                    if (Xids.contains((X)curr)){
-                        System.err.println(warnings.get("uniqe id") + curr.toString());
-                    }else if(curr.next.next == null){
+                    if(curr.next.next == null){
                         System.err.println(warnings.get("after X") + curr.toString());
                     }else{
                         Xids.add((X)curr);
@@ -260,131 +250,57 @@ public class Parser {
         ArrayList<Operator> operational = new ArrayList<>();
         
         Operator curr = start;
-        while(curr.next != null){
-            if (curr.type == S||curr.type == Y||curr.type == E){
-                    operational.add(curr);
+        while(curr != null){
+            if (curr.type == S||curr.type == Y||curr.type == E||curr.type == X){
+                operational.add(curr);
+                System.out.println(curr);
             }
             curr = curr.next;
         }
         
         LSAmatrix matrix = new LSAmatrix(operational.size());
-        matrix.operationalTop = new ArrayList<>(operational);
         
-        for (int i=0; i< operational.size();i++){
-            curr = operational.get(i);
-            Operator next = curr.next;
-            
-            switch(next.type){ 
-                case Y:
-                    addConnection(matrix, curr, new Connection((Y)next));                    
-                    break;
-                case X:
-                case O:
-                case I:
-                    findRoad(matrix, (Y)curr, next, new ArrayList<X>(), 
-                            new ArrayList<Boolean>());
-                    break;
-                case E:
-                    break;
+
+        int i=0;
+        for (Operator op : operational){
+            matrix.ids[i] = op.type+op.id;
+            if (op.type == X){
+                matrix.operationalTop[op.pos][((X)op).next(true).pos] = 1;
+                matrix.operationalTop[op.pos][((X)op).next(false).pos] = 2;
+            }else if(op.type == E){
+            }else{
+                matrix.operationalTop[op.pos][op.next().pos] = 1;
             }
+            
+            i++;
         }
         
         return matrix;
     }
-    /**
-     * Рекурсивний пошук всіх з'єднань через логічні умови і
-     * додавання знайдених до матриці
-     * @param matrix
-     * @param from
-     * @param curr
-     * @param predX
-     * @param predInvert 
-     */
-    private void findRoad(LSAmatrix matrix, Y from, Operator curr,
-            ArrayList<X> predX, ArrayList<Boolean> predInvert){
-        // TODO розгорнути рекурсію!
-        switch(curr.type){
-            case Y:
-            case E:
-                Connection conn = new Connection(curr);
-                conn.invert = new ArrayList<>(predInvert);
-                conn.logicalOp = new ArrayList<>(predX);
-
-                addConnection(matrix, from, conn);
-                break;
-            case X:
-                
-                predX.add((X)curr);
-                predInvert.add(Boolean.TRUE);
-                findRoad(matrix, from, curr.next, predX , predInvert);
-                
-                predInvert.remove(predInvert.size()-1);
-                predInvert.add(Boolean.FALSE);
-                findRoad(matrix, from, curr.next.next, predX , predInvert);
-                break;
-            case I:
-                findRoad(matrix, from, curr.next, predX , predInvert);
-                break;
-            case O:
-                findRoad(matrix, from, curr.next(), predX , predInvert);
-                break;
-        }
-    }
-    /**
-     * Додавання з'єднання до матриці
-     * @param matrix
-     * @param to
-     * @param conn 
-     */
-    private void addConnection(LSAmatrix matrix, Operator to, Connection conn){
-        //System.out.println(to.toString() + "->" + conn.destination.toString());
-        if (matrix.connections.containsKey(to)){
-                matrix.connections.get(to).add(conn);
-            }else{
-                matrix.connections.put(to, new ArrayList<Connection>());
-                matrix.connections.get(to).add(conn);
-            }
-    }
-
+   
     
-    public Operator fromMatrix(LSAmatrix matrix    ){
-        Operator start = matrix.operationalTop.get(0);
-        List<X> logOp = new ArrayList<>();
-        
-        for(int i=0;i<matrix.operationalTop.size();i++){
-            Operator curr = matrix.operationalTop.get(i);
-            List<Connection> conns = matrix.connections.get(curr);
-            for(Connection conn : conns){
-                for (X  X: conn.logicalOp ){
-                    
-                }
-            }
-            
-        }
-        
-        
-        
-        
+    public Operator fromMatrix(LSAmatrix matrix){
         return null;
     }
     
     public static void main(String [] args){
-        /**
+        
         Parser p = new Parser();
         String text = "S Y1 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
         Operator start = p.getTokens(text);
         p.linkTokens(start);
         Operator curr = start;
-        LSAmatrix matrix = p.toMatrix(start);
+        
         
         while(curr != null){
             System.out.println(curr);
             curr = curr.next();
-        }*/
-        
+        }
+        System.out.println(p.toMatrix(start));
+        /*
         Frame f = new Frame("Editor");
         f.setVisible(true);
-        
+        */
         
     }
     

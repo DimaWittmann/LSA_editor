@@ -30,7 +30,7 @@ public class Operator {
             return false;
         }
         if ( obj.getClass() == obj.getClass()){
-            if(this.id.equals(((Operator)obj).id)){
+            if(this.id.equals(((Operator)obj).id) && this.pos == ((Operator)obj).pos){
                 return true;
             }
         }
@@ -47,8 +47,12 @@ public class Operator {
         return hash;
     }
     
-    public Operator next(){
-        return next;
+    public Operator next() {
+        if(next.type == Type.O || next.type == Type.I){
+            return next.next();
+        }else{
+            return next;
+        }
     }
     
 }

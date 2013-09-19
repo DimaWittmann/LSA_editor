@@ -13,9 +13,8 @@ public class Y extends Operator{
 
     @Override
     public String toString() {
-        return "Y"+id;
+        return this.pos+ ": Y"+id;
     }
-
     
     
 }

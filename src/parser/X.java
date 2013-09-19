@@ -1,28 +1,33 @@
 package parser;
 
 /**
- *
+ * 
  * @author wittmann
  */
 public class X extends Operator{
-
-    public Boolean signal;
     
     public X(int pos) {
         super(pos);
-        signal = true;
         type = Type.X;
     }
 
     @Override
     public String toString() {
-        return "X"+id;
+        return this.pos+ ": X"+id;
     }
 
     @Override
     public Operator next() {
-        if (signal){
-            return next;
+        return next(true);
+    }
+    
+    public Operator next(boolean cond) {
+        if (cond){
+            if(next.type == Type.O || next.type == Type.I){
+                return next.next();
+            }else{
+                return next;
+            }
         }else{
             return next.next;
         }

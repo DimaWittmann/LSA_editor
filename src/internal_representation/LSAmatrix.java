@@ -1,27 +1,60 @@
 package internal_representation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import parser.Operator;
-import parser.X;
-
 /**
  * Являє собою матричне представлення алгоритму
  * @author wittmann
  */
 public class LSAmatrix {
     public int dimension;
-    public ArrayList<Operator> operationalTop;
-
-    public Map<Operator, List<Connection>>  connections;
-
+    public int [][] operationalTop;
+    public String [] ids; 
     public LSAmatrix(int dimension) {
         this.dimension = dimension;
-        operationalTop = new ArrayList<>();
-        connections = new HashMap();
+        operationalTop = new int[dimension][dimension];
+        for(int i=0;i<dimension;i++){
+            for (int j = 0; j < dimension; j++) {
+                operationalTop[i][j] = 0;
+            }
+        }
+        ids = new String[dimension];
     }
+
+    @Override
+    public String toString() {
+        int rowWidth = 3;
+        String result = "";
+        while(result.length() < rowWidth){
+            result += " ";
+        }
+        
+        for(String st:ids){
+            while(st.length() < rowWidth){
+                st += " ";
+            }
+            result += st;
+        }
+        result += "\n";
+        for(int i=0;i<dimension;i++){
+            String cell = ids[i];
+            while(cell.length() < rowWidth){
+                cell += " ";
+            }
+            result += cell;
+            
+            for (int j = 0; j < dimension; j++) {
+                cell = String.valueOf(operationalTop[i][j]);
+                while(cell.length() < rowWidth){
+                    cell += " ";
+                }
+                result += cell;
+            }
+            result += "\n";
+        }
+        return result;
+    }
+    
+    
+    
 
     
 }

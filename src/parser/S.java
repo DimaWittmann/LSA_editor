@@ -11,11 +11,12 @@ public class S extends Operator{
         super(pos);
         pred = null;
         type = Type.S;
+        id = "";
     }
     
     @Override
     public String toString(){
-        return "S";
+        return this.pos + ": S";
     }
     
 }
