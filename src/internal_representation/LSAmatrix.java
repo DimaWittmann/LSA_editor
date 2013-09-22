@@ -1,10 +1,12 @@
 package internal_representation;
 
+import java.io.Serializable;
+
 /**
  * Являє собою матричне представлення алгоритму
  * @author wittmann
  */
-public class LSAmatrix {
+public class LSAmatrix implements Serializable {
     public int dimension;
     public int [][] operationalTop;
     public String [] ids; 

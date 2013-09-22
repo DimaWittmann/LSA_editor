@@ -1,5 +1,7 @@
 package parser;
 
+import GUI.Frame;
+import interaction.Controller;
 import internal_representation.LSAmatrix;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,27 +16,46 @@ public class Parser {
     
     public Map<String, String> warnings;
 
-    ArrayList<Y> Yids;
-    ArrayList<X> Xids;
-    ArrayList<I> Iids;
-    ArrayList<O> Oids;
+
+    
+    public Operator start;
+    public String fileName;
+    public String LSA;
     
     public Parser() {
-        this.Oids = new ArrayList<>();
-        this.Iids = new ArrayList<>();
-        this.Xids = new ArrayList<>();
-        this.Yids = new ArrayList<>();
+        
         initWargnings();
+        start = null;
+        LSA = null;
     }
     
+    public LSAmatrix parse(String text) throws ParseException{
+        LSA = text;
+        LSAmatrix matrix = null;
+        start = getTokens(text);
+        linkTokens(start);
+        matrix = toMatrix(start);
+        return matrix;
+    }
+    
+    public LSAmatrix parse() throws ParseException{
+        if (LSA != null){
+            return parse(LSA);
+        }else{
+            return null;
+        }
+        
+    }
     
     /**
      * 
      * @param text вхідні символи
      * @return токени, послідовно зв'язані один за однис у порядку їх
      * об'явлення в text
+     * @throws parser.ParseException
      */
-    public Operator getTokens(String text){
+    public Operator getTokens(String text) throws ParseException{
+        LSA = text;
         boolean operator = true;
         String label = "";
         Operator curr = null; //поточний оператор
@@ -60,7 +81,7 @@ public class Parser {
                     case 'S':
                         curr = new S(pos);
                         if (first != null){
-                            System.err.println("Start must be only once");
+                            throw new ParseException(warnings.get("Sduplicate"));
                         }
                         first = curr;
                         pos++;
@@ -107,27 +128,36 @@ public class Parser {
                         curr = new E(pos);
                         curr.pred = pred;
                         pred.next = curr;
-                        return first;                
-                    
+                        
+                        return first;
+                    case ' ':
+                    case '\n':
+                        break;
+                    default:
+                        throw new ParseException(warnings.get("illegalChar") + c);
                 }
             }
             
         }        
         //Якщо ми сюди дійшли - то відсутній оператор кінця
-        System.err.println(warnings.get("E not found"));
-        return null;
+        throw new ParseException(warnings.get("E not found"));
     }
     
     /**
      * Перевірка всьго алгоритму на валідність.
-     * Створення зв'язків безумовних і умовних переходів. 
-     * @param start початковий токен
+     * Створення зв'язків безумовних і умовних переходів.
+     * @param start
+     * @throws parser.ParseException * @param start початковий токен
      */
-    public void linkTokens(Operator start){
+    public void linkTokens(Operator start) throws ParseException{
         //TODO Реалізувати можливості декількох виходів для одного входу
         
+        ArrayList<O> Oids = new ArrayList<>();
+        ArrayList<I> Iids = new ArrayList<>();
+        ArrayList<X> Xids = new ArrayList<>();
+        ArrayList<Y> Yids = new ArrayList<>();
         if(start.type != Operator.Type.S){
-            System.err.println(warnings.get("firstS"));
+            throw new ParseException(warnings.get("firstS"));
         }
         
         Operator curr = start;
@@ -144,21 +174,20 @@ public class Parser {
                     break;
                 case X:
                     if(curr.next.next == null){
-                        System.err.println(warnings.get("after X") + curr.toString());
+                        throw new ParseException(warnings.get("after X") + curr.toString());
                     }else{
                         Xids.add((X)curr);
                     }
                     break;
                 case O:
                     if (Oids.contains((O)curr)){
-                        System.err.println(warnings.get("uniqe id") + curr.toString());
+                        throw new ParseException(warnings.get("uniqe id") + curr.toString());
                     }else{
                         Oids.add((O)curr);
                         if (((O)curr).end == null){
-                            Operator end = findI(((O)curr));
+                            Operator end = findI(((O)curr), Iids);
                             if (end == null){
-                                System.err.println(warnings.get("Link not found") 
-                                        + curr.toString());
+                                throw new ParseException(warnings.get("Link not found")+ curr.toString());
                             }else{
                                 ((I)end).start = (O)curr;
                                 ((O)curr).end = (I) end;
@@ -169,13 +198,13 @@ public class Parser {
                 case I:
                     
                     if (Iids.contains((I)curr)){
-                        System.err.println(warnings.get("uniqe id") + curr.toString());
+                        throw new ParseException(warnings.get("uniqe id") + curr.toString());
                     }else{
                         Iids.add((I)curr);
                         if (((I)curr).start == null){
-                            Operator srt = findO(((I)curr));
+                            Operator srt = findO(((I)curr), Oids);
                             if (srt == null){
-                                System.err.println(warnings.get("Link not found") 
+                                throw new ParseException(warnings.get("Link not found") 
                                         + curr.toString());
                             }else{
                                 ((O)srt).end = (I)curr;
@@ -192,7 +221,7 @@ public class Parser {
     }
     
     //TODO Подумати, як краще спростити і з'єднати два методи
-    private Operator findI(O O){
+    private Operator findI(O O, ArrayList<I> Iids){
         
         for(I I:Iids){
             if(I.id.equals(O.id)){
@@ -211,7 +240,7 @@ public class Parser {
         return null;
     }
     
-    private Operator findO(I I){
+    private Operator findO(I I, ArrayList<O> Oids){
         
         for(O O:Oids){
             if(O.id.equals(I.id)){
@@ -238,10 +267,12 @@ public class Parser {
     private void initWargnings(){
         warnings = new HashMap<>();
         warnings.put("firstS","First operator must be S");
-        warnings.put("uniqe id","All ids must be uniqe for same types of operator ");
-        warnings.put("after X", "After X must be at least two operators ");
-        warnings.put("Link not found", "Can`t found end/start for");
+        warnings.put("uniqe id","All ids must be uniqe for same types of operator: ");
+        warnings.put("after X", "After X must be at least two operators: ");
+        warnings.put("Link not found", "Can`t found end/start for: ");
         warnings.put("E not found", "LSA must end with a E");
+        warnings.put("Sduplicate","Start must be only once");
+        warnings.put("illegalChar", "Unknown identifier is present: ");
     }
     
     public LSAmatrix toMatrix(Operator start){
@@ -251,7 +282,6 @@ public class Parser {
         while(curr != null){
             if (curr.type == S||curr.type == Y||curr.type == E||curr.type == X){
                 operational.add(curr);
-                System.out.println(curr);
             }
             curr = curr.next;
         }
@@ -274,8 +304,6 @@ public class Parser {
         
         return matrix;
     }
-   
-    
     
     /**
      * Генерація графа з матриці
@@ -314,6 +342,7 @@ public class Parser {
                 case 'E':
                     E e = new E(i);
                     operators.add(e);
+                    pred.next = e;
                     e.pred = pred;
                     break;
             }
@@ -390,8 +419,18 @@ public class Parser {
             }
             pred = curr;
         }
-        
+        this.start = start;
         return start;
+    }
+    
+    public String createLSA(){
+        String text = "";
+        Operator curr = start;
+        while(curr != null){
+            text += " "+curr.toString();
+            curr = curr.next;
+        }
+        return text;
     }
     /**
      * Додати оператор попереду іншого
@@ -418,6 +457,7 @@ public class Parser {
     
     public static void main(String [] args){
         
+        /**
         Parser p = new Parser();
         String text = "S Y2 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
         Operator start = p.getTokens(text);
@@ -434,10 +474,10 @@ public class Parser {
             System.out.print(curr+ " ");
             curr = curr.next;
         }
-        /*
-        Frame f = new Frame("Editor");
-        f.setVisible(true);
-        */
+        * */
+        
+        Controller controller = new Controller();
+        
         
     }
     
