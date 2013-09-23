@@ -4,12 +4,9 @@ import internal_representation.LSAmatrix;
 import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import javax.swing.*;
-import parser.Operator;
-import parser.ParseException;
-import parser.Parser;
+import parser.*;
 
 /**
  *

@@ -4,8 +4,6 @@
  * and open the template in the editor.
  */
 package interaction;
-
-import GUI.Frame;
 import GUI.WorkPanel;
 import java.awt.Dimension;
 import javax.swing.JFrame;
@@ -20,6 +18,7 @@ public class Controller {
     JFrame f;
     WorkPanel wp;
     Parser p;
+    
     public Controller(){
         f = new JFrame("Editor");
         
@@ -28,7 +27,7 @@ public class Controller {
         wp = new WorkPanel(p);
         f.add(wp);
         f.setMinimumSize(new Dimension(840, 480));
-        f.setDefaultCloseOperation(Frame.EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         f.setVisible(true);
         

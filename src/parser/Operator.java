@@ -38,8 +38,7 @@ public class Operator {
         return false;
         
     }
-
-
+    
     @Override
     public int hashCode() {
         int hash = 3;

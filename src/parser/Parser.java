@@ -1,11 +1,7 @@
 package parser;
-
-import GUI.Frame;
 import interaction.Controller;
 import internal_representation.LSAmatrix;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import static parser.Operator.Type.*;
 
 /**
@@ -15,9 +11,6 @@ import static parser.Operator.Type.*;
 public class Parser {
     
     public Map<String, String> warnings;
-
-
-    
     public Operator start;
     public String fileName;
     public String LSA;
@@ -76,6 +69,7 @@ public class Parser {
                 }
             }else{
                 //TODO позбавитися повторюваності коду
+                
                 switch(c){
                     
                     case 'S':
@@ -154,8 +148,7 @@ public class Parser {
         
         ArrayList<O> Oids = new ArrayList<>();
         ArrayList<I> Iids = new ArrayList<>();
-        ArrayList<X> Xids = new ArrayList<>();
-        ArrayList<Y> Yids = new ArrayList<>();
+
         if(start.type != Operator.Type.S){
             throw new ParseException(warnings.get("firstS"));
         }
@@ -163,20 +156,10 @@ public class Parser {
         Operator curr = start;
 
         while (curr.next != null){
-            
-            
             switch (curr.type){
-                case E:
-                case S:
-                    break;
-                case Y:
-                    Yids.add((Y)curr);
-                    break;
                 case X:
                     if(curr.next.next == null){
                         throw new ParseException(warnings.get("after X") + curr.toString());
-                    }else{
-                        Xids.add((X)curr);
                     }
                     break;
                 case O:
@@ -456,29 +439,8 @@ public class Parser {
     }
     
     public static void main(String [] args){
-        
-        /**
-        Parser p = new Parser();
-        String text = "S Y2 X1 O1 Y2 O2 I1 X2 O3 Y3 O4 I3 I2 Y4 I4 E";
-        Operator start = p.getTokens(text);
-        p.linkTokens(start);
-        
-        
-
-        LSAmatrix matrix = p.toMatrix(start);
-        System.out.println(matrix);
-
-        Operator curr = p.fromMatrix(matrix);
-        System.out.println(text);
-        while(curr != null){
-            System.out.print(curr+ " ");
-            curr = curr.next;
-        }
-        * */
-        
+       
         Controller controller = new Controller();
-        
-        
     }
     
 }
