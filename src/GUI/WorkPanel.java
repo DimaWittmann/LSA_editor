@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.*;
 import internal_representation.LSAmatrix;
 import java.awt.BorderLayout;
 import java.awt.event.*;
@@ -59,14 +60,15 @@ public class WorkPanel extends JPanel{
         inputArea = new JTextArea(5, 80);
         
         outputArea = new JTextArea();
-        
+        outputArea.setForeground(Color.red);
+        Font font = new Font("Times New Roman", Font.PLAIN, 14);
+        outputArea.setFont(font);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.add(inputArea);
         splitPane.add(outputArea);
         
         this.add(splitPane, BorderLayout.CENTER);
-        
         
     }
     
@@ -83,8 +85,8 @@ public class WorkPanel extends JPanel{
                     try {
                         String text = inputArea.getText();
                         LSAmatrix m;
-                        p.start = p.getTokens(text);
-                        p.linkTokens(p.start);
+                        p.getTokens(text);
+                        p.linkTokens(p.getTokens(text));
                         m = p.toMatrix(p.start);
                         outputArea.setText(m.toString());
                     } catch (ParseException ex) {

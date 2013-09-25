@@ -49,11 +49,16 @@ public class Parser {
      */
     public Operator getTokens(String text) throws ParseException{
         LSA = text;
+        System.out.println(text);
         boolean operator = true;
+        
         String label = "";
         Operator curr = null; //поточний оператор
         Operator pred = null; // попередній
         Operator first = null;
+        Operator last = null;
+        start = null;
+
         int pos = 0;
         
         for (int i=0;i<text.length();i++){
@@ -68,92 +73,88 @@ public class Parser {
                     label = "";
                 }
             }else{
-                //TODO позбавитися повторюваності коду
-                
-                switch(c){
-                    
-                    case 'S':
-                        curr = new S(pos);
-                        if (first != null){
-                            throw new ParseException(warnings.get("Sduplicate"));
-                        }
-                        first = curr;
-                        pos++;
-                        break;
-                    case 'I':
-                        
-                        pred = curr;
-                        curr = new I(pos);
-                        curr.pred = pred;
-                        pred.next = curr;
-                        
-                        operator = false;
-                        break;
-                    case 'O':
-                        
-                        pred = curr;
-                        curr = new O(pos);
-                        curr.pred = pred;
-                        pred.next = curr;
-                        operator = false;
-                        break;
-                    case 'X':
-                        
-                        pred = curr;
-                        curr = new X(pos);
-                        curr.pred = pred;
-                        pred.next = curr;
-                        
-                        pos++;
-                        operator = false;
-                        break;
-                    case 'Y':
-                        
-                        pred = curr;
-                        curr = new Y(pos);
-                        curr.pred = pred;
-                        pred.next = curr;
-                        
-                        pos++;
-                        operator = false;
-                        break;
-                    case 'E' :
-                        pred = curr;
-                        curr = new E(pos);
-                        curr.pred = pred;
-                        pred.next = curr;
-                        
-                        return first;
-                    case ' ':
-                    case '\n':
-                        break;
-                    default:
-                        throw new ParseException(warnings.get("illegalChar") + c);
-                }
-            }
+            	boolean nextSw = false;
+	            pred = curr;
+	            switch(c){
+	                case 'S':
+	                    curr = new S(pos);
+	                    if (start != null){
+	                        throw new ParseException(warnings.get("Sduplicate"));
+	                    }
+	                    start = curr;
+	                    break;
+	                case 'I':
+	                    curr = new I(pos);
+	                    pos--;
+	                    break;
+	                case 'O':
+	                    curr = new O(pos);
+	                    pos--;
+	                    break;
+	                case 'X':
+	                    curr = new X(pos);
+	                    break;
+	                case 'Y':
+	                    curr = new Y(pos);
+	                    break;
+	                case 'E' :
+	                    if(last != null){
+	                        throw new ParseException(warnings.get("Eduplicate"));
+	                    }
+	                    curr = new E(pos);
+	                    last = curr;
+	
+	                    break;
+	                default:
+	                	nextSw = true;
+	            }
+	            
+	            if(! nextSw){
+	            	if(first == null){
+	            		first = curr;
+	            	}
+	            	curr.pred = pred;
+		            if (pred != null){
+		            	pred.next = curr;
+		            }
+		            pos++;
+		            operator = false;
+	            }else{
+	            	switch (c){
+			            case ' ':
+		                case '\n':
+		                    break;
+		                default:
+		                    throw new ParseException(warnings.get("illegalChar") + c);
+		            }
+	            }
+	        }
             
         }        
-        //Якщо ми сюди дійшли - то відсутній оператор кінця
-        throw new ParseException(warnings.get("E not found"));
+        
+        if( first == null){
+            throw new ParseException(warnings.get("S not found"));
+        }
+        if(last == null ){
+            throw new ParseException(warnings.get("E not found"));
+        }
+        return first;
     }
     
     /**
      * Перевірка всьго алгоритму на валідність.
      * Створення зв'язків безумовних і умовних переходів.
-     * @param start
-     * @throws parser.ParseException * @param start початковий токен
+     * @param first початковий токен
+     * @return старт ЛСА
+     * @throws parser.ParseException 
      */
-    public void linkTokens(Operator start) throws ParseException{
+    public Operator linkTokens(Operator first) throws ParseException{
         //TODO Реалізувати можливості декількох виходів для одного входу
         
         ArrayList<O> Oids = new ArrayList<>();
         ArrayList<I> Iids = new ArrayList<>();
-
-        if(start.type != Operator.Type.S){
-            throw new ParseException(warnings.get("firstS"));
-        }
         
-        Operator curr = start;
+        Operator curr = first;
 
         while (curr.next != null){
             switch (curr.type){
@@ -198,9 +199,8 @@ public class Parser {
                     break;
             }
             curr = curr.next;
-            
         }
-        
+        return start;
     }
     
     //TODO Подумати, як краще спростити і з'єднати два методи
@@ -253,8 +253,10 @@ public class Parser {
         warnings.put("uniqe id","All ids must be uniqe for same types of operator: ");
         warnings.put("after X", "After X must be at least two operators: ");
         warnings.put("Link not found", "Can`t found end/start for: ");
-        warnings.put("E not found", "LSA must end with a E");
+        warnings.put("E not found", "LSA must be with a one end operator");
+        warnings.put("S not found", "LSA must be with a one start operator");
         warnings.put("Sduplicate","Start must be only once");
+        warnings.put("Eduplicate","End must be only once");
         warnings.put("illegalChar", "Unknown identifier is present: ");
     }
     
@@ -262,6 +264,9 @@ public class Parser {
         ArrayList<Operator> operational = new ArrayList<>();
         
         Operator curr = start;
+        while(curr.pred != null){
+        	curr = curr.pred;
+        }
         while(curr != null){
             if (curr.type == S||curr.type == Y||curr.type == E||curr.type == X){
                 operational.add(curr);
