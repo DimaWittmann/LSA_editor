@@ -48,6 +48,9 @@ public class Operator {
     }
     
     public Operator next() {
+        if(next == null){
+            return null;
+        }
         if(next.type == Type.O || next.type == Type.I){
             return next.next();
         }else{

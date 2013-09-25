@@ -10,8 +10,7 @@ public class X extends Operator{
         super(pos);
         type = Type.X;
     }
-
-
+    
     @Override
     public Operator next() {
         return next(true);

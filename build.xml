@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="LSA editor" default="all" basedir=".">
+	
+    <property name="srcDir" value="src/" />
+    <property name="bldDir" value="build/" />
+
+	<target name="clean">
+		<delete dir="${bldDir}" />
+		<mkdir dir="${bldDir}" />
+        <mkdir dir="${bldDir}/classes" />
+        <mkdir dir="${bldDir}/jar" />
+	</target>
+
+    <target name="compile" >
+	  	<javac srcdir="${srcDir}" destdir="${bldDir}/classes">
+	 	  	<include name="**/*.java" />
+	  	</javac>
+	</target>
+    
+	<target name="jar" depends="compile">
+	  	<jar destfile="${bldDir}/jar/LSAEditor.jar">
+	 		<fileset dir="${bldDir}/classes">
+	 	 	  	<include name="**/*.class"/>
+	 		</fileset>
+
+	 		<manifest>
+		      <attribute name="Main-Class"
+		            value="parser.Parser"/>
+		    </manifest>
+	  	</jar>
+  	</target>
+    
+    <target name="all" depends="jar"/>
+
+
+</project>

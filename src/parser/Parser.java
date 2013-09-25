@@ -12,13 +12,14 @@ public class Parser {
     
     public Map<String, String> warnings;
     public Operator start;
+    public Operator first;
     public String fileName;
     public String LSA;
     
     public Parser() {
-        
         initWargnings();
         start = null;
+        first = null;
         LSA = null;
     }
     
@@ -52,11 +53,12 @@ public class Parser {
         System.out.println(text);
         boolean operator = true;
         
+        text += " ";  // шоб точно розпарсило останній опратор
         String label = "";
         Operator curr = null; //поточний оператор
         Operator pred = null; // попередній
-        Operator first = null;
         Operator last = null;
+        first = null;
         start = null;
 
         int pos = 0;
@@ -111,7 +113,7 @@ public class Parser {
 	            
 	            if(! nextSw){
 	            	if(first == null){
-	            		first = curr;
+                            first = curr;
 	            	}
 	            	curr.pred = pred;
 		            if (pred != null){
@@ -121,15 +123,14 @@ public class Parser {
 		            operator = false;
 	            }else{
 	            	switch (c){
-			            case ' ':
-		                case '\n':
-		                    break;
-		                default:
-		                    throw new ParseException(warnings.get("illegalChar") + c);
-		            }
+                            case ' ':
+                            case '\n':
+                                break;
+                            default:
+                                throw new ParseException(warnings.get("illegalChar") + c);
+                        }
 	            }
 	        }
-            
         }        
         
         if( first == null){
@@ -259,21 +260,21 @@ public class Parser {
         warnings.put("Eduplicate","End must be only once");
         warnings.put("illegalChar", "Unknown identifier is present: ");
     }
-    
-    public LSAmatrix toMatrix(Operator start){
+    /**
+     * Генерація матриці переходів з графа і відображення позиції - id.
+     * @param first перший токен графа
+     * @return LSAmatrix клас преставлення алгоритму
+     */
+    public LSAmatrix toMatrix(Operator first){
         ArrayList<Operator> operational = new ArrayList<>();
         
-        Operator curr = start;
-        while(curr.pred != null){
-        	curr = curr.pred;
-        }
+        Operator curr = first;
         while(curr != null){
             if (curr.type == S||curr.type == Y||curr.type == E||curr.type == X){
                 operational.add(curr);
             }
             curr = curr.next;
         }
-        
         LSAmatrix matrix = new LSAmatrix(operational.size());
         
         int i=0;
@@ -282,11 +283,11 @@ public class Parser {
             if (op.type == X){
                 matrix.operationalTop[op.pos][((X)op).next(true).pos] = 1;
                 matrix.operationalTop[op.pos][((X)op).next(false).pos] = 2;
-            }else if(op.type == E){
             }else{
-                matrix.operationalTop[op.pos][op.next().pos] = 1;
+                if(op.next() != null){
+                    matrix.operationalTop[op.pos][op.next().pos] = 1;
+                }
             }
-            
             i++;
         }
         
@@ -300,47 +301,44 @@ public class Parser {
      */
     public Operator fromMatrix(LSAmatrix matrix){
         ArrayList<Operator> operators = new ArrayList<>();
-        Operator start = null;
+        start = null;
+        first = null;
         
         int i = 0;
         Operator pred = null;
         for(String id:matrix.ids){
+            Operator curr = null;
             switch(id.charAt(0)){
                 case 'S':
-                    start = new S(i);
-                    operators.add(start);
-                    pred = start;
+                    curr = new S(i);
+                    start = curr;
                     break;
                 case 'X':
-                    X x = new X(i);
-                    operators.add(x);
-                    x.pred = pred;
-                    x.id = id.substring(1);
-                    pred.next = x;
-                    pred = x;
+                    curr = new X(i);
                     break;
                 case 'Y':
-                    Y y = new Y(i);
-                    operators.add(y);
-                    y.pred = pred;
-                    y.id = id.substring(1);
-                    pred.next = y;
-                    pred = y;
+                    curr = new Y(i);
                     break;
                 case 'E':
-                    E e = new E(i);
-                    operators.add(e);
-                    pred.next = e;
-                    e.pred = pred;
+                    curr = new E(i);
                     break;
             }
+            if(first == null){
+                first = curr;
+            }
+            operators.add(curr);
+            curr.pred = pred;
+            curr.id = id.substring(1);
+            if (pred != null){
+                pred.next = curr;
+            }
+            pred = curr;
             i++;
             
         }
         
         int numJumps = 0;
         pred = null;
-        ArrayList<Operator> added = new ArrayList<>();
         for (Operator curr: operators){
             switch(curr.type){
                 case S:
@@ -370,16 +368,6 @@ public class Parser {
                     
                     break;
                 case X:
-                    numJumps++;
-                    
-                    O out = new O(0);
-                    out.id = String.valueOf(numJumps);
-                    
-                    I in = new I(0);
-                    in.id = String.valueOf(numJumps);
-                    
-                    insertNextOperator(curr, out);
-                    out.end = in;
                     
                     Operator stepTrue = null;
                     Operator stepFalse = null;
@@ -391,29 +379,36 @@ public class Parser {
                         }
                     }
                     
-                    assert (stepFalse == out.next);   //FIXME not implemented yet
-                    assert (stepTrue != null);
-                    //TODO зробити можливість переходу по false на умову чи безумовний перехід
-                    
-                    insertPredOperator(stepTrue, in);
-                    
+                    if( curr.pos == stepTrue.pos - 1 && curr.pos == stepFalse.pos - 2){
+                        
+                    }else{
+                        numJumps++;
+
+                        O out = new O(0);
+                        out.id = String.valueOf(numJumps);
+                        insertNextOperator(curr, out);
+
+                        I in = new I(0);
+                        in.id = String.valueOf(numJumps);
+                        out.end = in;
+                        insertPredOperator(stepTrue, in);
+
+                        assert (stepTrue != null);
+                        //TODO зробити можливість переходу по false на умову чи безумовний перехід
+                    }
                     break;
                 case E:
 
                     break;
             }
-            if(!added.contains(curr)){ //FIXME не використовується
-                added.add(curr);
-            }
             pred = curr;
         }
-        this.start = start;
-        return start;
+        return first;
     }
     
     public String createLSA(){
         String text = "";
-        Operator curr = start;
+        Operator curr = first;
         while(curr != null){
             text += " "+curr.toString();
             curr = curr.next;

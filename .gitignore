@@ -1,6 +1,6 @@
 /build/
 /nbproject/
 /text/
-build.xml
+*.jar
 manifest.mf
 /dist/

@@ -1,6 +1,7 @@
 package internal_representation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Являє собою матричне представлення алгоритму
@@ -52,11 +53,40 @@ public class LSAmatrix implements Serializable {
             }
             result += "\n";
         }
+        for(int i=0;i<ids.length;i++){
+            result += String.valueOf(i) +": "+ids[i]+"\n";
+        }
         return result;
     }
     
-    
-    
+    public String validateMatrix(){
+        ArrayList<String> messages = new ArrayList<>();
+        int [] inputs = new int [dimension];
+        int [] outputs = new int [dimension];
+        
+        for (int i = 0; i < operationalTop.length; i++) {
+            for (int j = 0; j < operationalTop[i].length; j++) {
+                if (operationalTop[i][j] != 0){
+                    inputs[i]++;
+                    outputs[j]++;
+                }
+                
+            }
+        }
+        
+        for (int i = 0; i < dimension; i++) {
+            if(inputs[i] == 0 && !"S".equals(ids[i])) {
+                messages.add("Hanging  vertex: "+ i);
+            }
+            if(outputs[i] == 0 && !"E".equals(ids[i])){
+                messages.add("Unreachable vertex: "+ i);
+            }
+        }
+        String result = "";
+        for(String m : messages){
+            result += m + "\n";
+        }
 
-    
+        return result;
+    }
 }

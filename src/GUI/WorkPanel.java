@@ -34,23 +34,27 @@ public class WorkPanel extends JPanel{
         MenuListener listener = new MenuListener(parser);
         
         JMenu fileMenu = new JMenu("File");
+        
         JMenuItem newItem = new JMenuItem("New");
         newItem.addActionListener(listener);
-        
-        JMenu runMenu = new JMenu("Run");
-        JMenuItem runItem = new JMenuItem("Run");
-        runItem.addActionListener(listener);
-        
         JMenuItem saveItem = new JMenuItem("Save");
         saveItem.addActionListener(listener);
         JMenuItem loadItem = new JMenuItem("Load");
         loadItem.addActionListener(listener);
+        
+        JMenu runMenu = new JMenu("Run");
+        
+        JMenuItem runItem = new JMenuItem("Run");
+        runItem.addActionListener(listener);
+        JMenuItem validateItem = new JMenuItem("Validate");
+        validateItem.addActionListener(listener);
         
         fileMenu.add(newItem);
         fileMenu.add(saveItem);
         fileMenu.add(loadItem);
         
         runMenu.add(runItem);
+        runMenu.add(validateItem);
         
         menuBar.add(fileMenu);
         menuBar.add(runMenu);
@@ -78,17 +82,33 @@ public class WorkPanel extends JPanel{
         public MenuListener(Parser p ){
             this.p = p;
         }
+        
         @Override
         public void actionPerformed(ActionEvent e) {
             switch(e.getActionCommand()){
                 case "Run":
                     try {
-                        String text = inputArea.getText();
-                        LSAmatrix m;
-                        p.getTokens(text);
-                        p.linkTokens(p.getTokens(text));
-                        m = p.toMatrix(p.start);
+                        p.linkTokens(p.getTokens(inputArea.getText()));
+                        LSAmatrix m = p.toMatrix(p.first);
                         outputArea.setText(m.toString());
+                    } catch (ParseException ex) {
+                        Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
+                        outputArea.setText(ex.getMessage());
+                    }
+                    break;
+                case "Validate":
+                    System.out.println("validate");
+                    try {
+                        p.linkTokens(p.getTokens(inputArea.getText()));
+                        LSAmatrix m = p.toMatrix(p.first); 
+                        String messages = m.validateMatrix();
+                        if(messages.equals("")){
+                            outputArea.setText("Matrix is validated\n" + outputArea.getText());
+                        }else{
+                            outputArea.setText("Some problems with vertexes: \n" 
+                                    + messages + outputArea.getText());
+                            
+                        }
                     } catch (ParseException ex) {
                         Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
                         outputArea.setText(ex.getMessage());
@@ -145,6 +165,7 @@ public class WorkPanel extends JPanel{
                             p.fromMatrix(matrix);
                             String text = p.createLSA();
                             inputArea.setText(text);
+                            outputArea.setText("");
                             
                         } catch ( ClassNotFoundException | IOException ex) {
                             Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
