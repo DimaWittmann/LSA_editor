@@ -78,10 +78,10 @@ public class LSAmatrix implements Serializable {
         }
         
         for (int i = 0; i < dimension; i++) {
-            if(inputs[i] == 0 && (!"S".equals(ids[i]))) {
+            if(ids[i].charAt(0) != 'E' && inputs[i] == 0) {
                 messages.add("Hanging  vertex: "+ i);
             }
-            if(outputs[i] == 0 && (!"E".equals(ids[i]))){
+            if(ids[i].charAt(0) != 'S' && outputs[i] == 0 ){
                 messages.add("Unreachable vertex: "+ i);
             }
         }
@@ -107,29 +107,37 @@ public class LSAmatrix implements Serializable {
     }
     
     private void getRoad(int curr, List<Integer> road ){
-        road.add(curr);
-        if(ids[curr].charAt(0) == 'X'){
-            List<Integer> old_road = new ArrayList<>(road);
-            for (int i = 0; i < operationalTop[curr].length; i++) {
-                
-                if(operationalTop[curr][i] == 1 ){
-                    getRoad(i, road);
-                }
-                if(operationalTop[curr][i] == 2 ){
-                    getRoad(i, old_road);
-                }
+
+        if(road.contains(curr)){
+            road.add(curr);
+            while(!road.isEmpty() && curr != road.get(0)){
+                road.remove(0);
             }
-        }else if(ids[curr].charAt(0) == 'E'){
             roads.add(road);
         }else{
-            for (int i = 0; i < operationalTop[curr].length; i++) {
-                if(operationalTop[curr][i]>0 ){
-                    getRoad(i, road);
+            road.add(curr);
+            if(ids[curr].charAt(0) == 'X'){
+                List<Integer> old_road = new ArrayList<>(road);
+                for (int i = 0; i < operationalTop[curr].length; i++) {
+
+                    if(operationalTop[curr][i] == 1 ){
+                        getRoad(i, road);
+                    }
+                    if(operationalTop[curr][i] == 2 ){
+                        getRoad(i, old_road);
+                    }
+                }
+            }else if(ids[curr].charAt(0) == 'E'){
+                roads.add(road);
+            }else{
+                for (int i = 0; i < operationalTop[curr].length; i++) {
+                    if(operationalTop[curr][i]>0 ){
+                        getRoad(i, road);
+                    }
                 }
             }
         }
-    }
-    
+    }    
     
     public String showRoads(){
         String result = "";
@@ -139,6 +147,7 @@ public class LSAmatrix implements Serializable {
             for(Object node: l){
                 line += node + "->";
             }
+            line = line.substring(0, line.length()-2);
             result += line + "\n";
         }
         return result;
