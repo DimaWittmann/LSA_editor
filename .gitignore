@@ -4,3 +4,4 @@
 *.jar
 manifest.mf
 /dist/
+/LSA_editor/nbproject/private/

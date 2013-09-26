@@ -107,8 +107,9 @@ public class WorkPanel extends JPanel{
                         }else{
                             outputArea.setText("Some problems with vertexes: \n" 
                                     + messages + outputArea.getText());
-                            
                         }
+                        outputArea.setText(m.showRoads() + outputArea.getText());
+                        
                     } catch (ParseException ex) {
                         Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
                         outputArea.setText(ex.getMessage());

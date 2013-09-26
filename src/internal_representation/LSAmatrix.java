@@ -2,6 +2,7 @@ package internal_representation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Являє собою матричне представлення алгоритму
@@ -11,6 +12,8 @@ public class LSAmatrix implements Serializable {
     public int dimension;
     public int [][] operationalTop;
     public String [] ids; 
+    public List<List<Integer>> roads;
+            
     public LSAmatrix(int dimension) {
         this.dimension = dimension;
         operationalTop = new int[dimension][dimension];
@@ -75,10 +78,10 @@ public class LSAmatrix implements Serializable {
         }
         
         for (int i = 0; i < dimension; i++) {
-            if(inputs[i] == 0 && !"S".equals(ids[i])) {
+            if(inputs[i] == 0 && (!"S".equals(ids[i]))) {
                 messages.add("Hanging  vertex: "+ i);
             }
-            if(outputs[i] == 0 && !"E".equals(ids[i])){
+            if(outputs[i] == 0 && (!"E".equals(ids[i]))){
                 messages.add("Unreachable vertex: "+ i);
             }
         }
@@ -89,4 +92,56 @@ public class LSAmatrix implements Serializable {
 
         return result;
     }
+    
+    public void getRoads(){
+        roads = new ArrayList<>();
+        int start = 0;
+        for (int i = 0; i < ids.length; i++) {
+            if (ids[i].charAt(0) == 'S'){
+                start = i;
+                break;
+            }
+        }
+        
+        getRoad(start, new ArrayList<Integer>());
+    }
+    
+    private void getRoad(int curr, List<Integer> road ){
+        road.add(curr);
+        if(ids[curr].charAt(0) == 'X'){
+            List<Integer> old_road = new ArrayList<>(road);
+            for (int i = 0; i < operationalTop[curr].length; i++) {
+                
+                if(operationalTop[curr][i] == 1 ){
+                    getRoad(i, road);
+                }
+                if(operationalTop[curr][i] == 2 ){
+                    getRoad(i, old_road);
+                }
+            }
+        }else if(ids[curr].charAt(0) == 'E'){
+            roads.add(road);
+        }else{
+            for (int i = 0; i < operationalTop[curr].length; i++) {
+                if(operationalTop[curr][i]>0 ){
+                    getRoad(i, road);
+                }
+            }
+        }
+    }
+    
+    
+    public String showRoads(){
+        String result = "";
+        getRoads();
+        for(List l : this.roads){
+            String line = "";
+            for(Object node: l){
+                line += node + "->";
+            }
+            result += line + "\n";
+        }
+        return result;
+    }
+    
 }
