@@ -28,4 +28,9 @@ public class X extends Operator{
         }
         
     }
+
+    @Override
+    public boolean isConnection() {
+        return false;
+    }
 }

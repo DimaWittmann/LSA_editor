@@ -1,18 +1,20 @@
 
 package parser;
 
+import GUI.algorithm.OpPanel;
 import java.util.Objects;
 
 /**
  * Основа всіх операторів ЛСА
  * @author wittmann
  */
-public class Operator {
+public abstract class Operator {
     public Operator next;
     public int pos;
     public Operator pred;
     public String id;
     public Type type;
+    public OpPanel panel;
 
     //TODO додати в конструктор обов'язкове зазначання id Operator(int pos, String id)
     public Operator(int pos) {
@@ -23,7 +25,7 @@ public class Operator {
         this.pos = pos;
     }
     
-    enum Type {S, I, O, X, Y, E};
+    public enum Type {S, I, O, X, Y, E};
 
     @Override
     public boolean equals(Object obj) {
@@ -61,5 +63,7 @@ public class Operator {
     public String toString() {
         return type.toString()+id;
     }
+    
+    public abstract boolean isConnection();
 }
 

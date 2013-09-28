@@ -13,5 +13,8 @@ public class I extends Operator{
         type = Type.I;
     }
     
-    
+    @Override
+    public boolean isConnection() {
+        return true;
+    }
 }

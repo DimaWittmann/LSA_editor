@@ -3,6 +3,8 @@ package internal_representation;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import parser.*;
+import static parser.Operator.Type.*;
 
 /**
  * Являє собою матричне представлення алгоритму
@@ -23,6 +25,146 @@ public class LSAmatrix implements Serializable {
             }
         }
         ids = new String[dimension];
+    }
+    
+        
+    /**
+     * Генерація графа з матриці
+     * @param p - парсер, який зберігає стан поточного графу
+     * @return початок графа
+     */
+    public Operator toGraph(Parser p){
+        ArrayList<Operator> operators = new ArrayList<>();
+        p.start = null;
+        p.first = null;
+        
+        int i = 0;
+        Operator pred = null;
+        for(String id:this.ids){
+            Operator curr = null;
+            switch(id.charAt(0)){
+                case 'S':
+                    curr = new S(i);
+                    p.start = curr;
+                    break;
+                case 'X':
+                    curr = new X(i);
+                    break;
+                case 'Y':
+                    curr = new Y(i);
+                    break;
+                case 'E':
+                    curr = new E(i);
+                    break;
+            }
+            if(p.first == null){
+                p.first = curr;
+            }
+            operators.add(curr);
+            curr.pred = pred;
+            curr.id = id.substring(1);
+            if (pred != null){
+                pred.next = curr;
+            }
+            pred = curr;
+            i++;
+            
+        }
+        
+        int numJumps = 0;
+        pred = null;
+        for (Operator curr: operators){
+            switch(curr.type){
+                case S:
+                case Y:
+                    Operator step = null;
+                    for (int j = 0; j < this.operationalTop.length; j++) {
+                        if(this.operationalTop[curr.pos][j] == 1){
+                            step = operators.get(j);
+                            break;
+                        }
+                    }
+                    if (!curr.next().equals(step)){    //додавання бузумовного переходу
+                        numJumps++;
+                    
+                        O out = new O(0);
+                        out.id = String.valueOf(numJumps);
+
+                        I in = new I(0);
+                        in.id = String.valueOf(numJumps);
+
+                        insertNextOperator(curr, out);
+                        out.end = in;
+                        
+                        insertPredOperator(step, in);
+                    }
+                    
+                    break;
+                case X:
+                    
+                    Operator stepTrue = null;
+                    Operator stepFalse = null;
+                    for (int j = 0; j < this.operationalTop.length; j++) {
+                        if(this.operationalTop[curr.pos][j] == 1){
+                            stepTrue = operators.get(j);
+                        }else if(this.operationalTop[curr.pos][j] == 2){
+                            stepFalse = operators.get(j);
+                        }
+                    }
+                    
+                    if( curr.pos == stepTrue.pos - 1 && curr.pos == stepFalse.pos - 2){
+                        
+                    }else{
+                        numJumps++;
+
+                        O out = new O(0);
+                        out.id = String.valueOf(numJumps);
+                        insertNextOperator(curr, out);
+
+                        I in = new I(0);
+                        in.id = String.valueOf(numJumps);
+                        out.end = in;
+                        insertPredOperator(stepTrue, in);
+
+                        assert (stepTrue != null);
+                        //TODO зробити можливість переходу по false на умову чи безумовний перехід
+                    }
+                    break;
+                case E:
+
+                    break;
+                case I:
+                    break;
+                case O:
+                    break;
+
+            }
+            pred = curr;
+        }
+        return p.first;
+    }
+    
+        /**
+     * Додати оператор попереду іншого
+     * @param left оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertNextOperator(Operator left ,Operator center){
+        left.next.pred = center;
+        center.next = left.next;
+        left.next = center;
+        center.pred = left;
+    }
+    /**
+     * Додати оператор позаду іншого
+     * @param right оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertPredOperator(Operator right ,Operator center){
+        right.pred.next = center;
+        center.pred = right.pred;
+        right.pred = center;
+        center.next = right;
     }
 
     @Override

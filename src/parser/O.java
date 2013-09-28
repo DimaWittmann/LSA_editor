@@ -17,5 +17,8 @@ public class O extends Operator{
         return end.next();
     }
     
-    
+    @Override
+    public boolean isConnection() {
+        return true;
+    }
 }

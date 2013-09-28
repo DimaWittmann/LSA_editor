@@ -17,6 +17,9 @@ public class E extends Operator{
     public Operator next() {
         return null;
     }
-    
+    @Override
+    public boolean isConnection() {
+        return false;
+    }
     
 }

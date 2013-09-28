@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package interaction;
 import GUI.WorkPanel;
 import java.awt.Dimension;
@@ -15,22 +10,42 @@ import parser.Parser;
  */
 public class Controller {
     
-    JFrame f;
-    WorkPanel wp;
-    Parser p;
+    public AlgController algController;
+    public JFrame frame;
+    public WorkPanel wp;
+    public Parser parser;
+    public MenuListener menuListener;
     
     public Controller(){
-        f = new JFrame("Editor");
+        parser = new Parser();
         
-        p = new Parser();
+        algController = new AlgController(this);
         
-        wp = new WorkPanel(p);
-        f.add(wp);
-        f.setMinimumSize(new Dimension(840, 480));
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        menuListener = new MenuListener(this);
         
-        f.setVisible(true);
+        wp = new WorkPanel(menuListener);
         
+        frame = new JFrame("Editor");
+        frame.add(wp);
+        frame.setMinimumSize(new Dimension(840, 480));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+        
+    }
+    
+    public void setOptionalTitle(String title){
+        frame.setTitle("Editor | " + title);
+    }
+    
+    /**
+     * Зберегти оновити стан парсеру до поточних символів
+     */
+    public void readLSA(){
+        parser.LSA = wp.inputArea.getText();
+    }
+    
+    public void writeInfo(String str){
+        wp.outputArea.setText(str + wp.outputArea.getText());
     }
     
 }
