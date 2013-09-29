@@ -11,8 +11,8 @@ import parser.Operator;
  */
 public class AlgPanel extends JPanel{
     
-    protected static int widthCell = 100;
-    protected static int heightCell = 50;
+    protected static int widthCell = 200;
+    protected static int heightCell = 100;
     protected AlgController algController;
     
     public AlgPanel(AlgController controller){

@@ -84,21 +84,23 @@ public class LSAmatrix implements Serializable {
                             break;
                         }
                     }
-                    if (!curr.next().equals(step)){    //додавання бузумовного переходу
-                        numJumps++;
-                    
-                        O out = new O(0);
-                        out.id = String.valueOf(numJumps);
+                    if(step != null){
+                        if (curr.next() == null || !curr.next().equals(step)){    
+                            //додавання бузумовного переходу
+                            numJumps++;
 
-                        I in = new I(0);
-                        in.id = String.valueOf(numJumps);
+                            O out = new O(0);
+                            out.id = String.valueOf(numJumps);
 
-                        insertNextOperator(curr, out);
-                        out.end = in;
-                        
-                        insertPredOperator(step, in);
+                            I in = new I(0);
+                            in.id = String.valueOf(numJumps);
+
+                            insertNextOperator(curr, out);
+                            out.end = in;
+
+                            insertPredOperator(step, in);
+                        }
                     }
-                    
                     break;
                 case X:
                     
@@ -150,8 +152,12 @@ public class LSAmatrix implements Serializable {
      * @param center новий елемент
      */
     private void insertNextOperator(Operator left ,Operator center){
-        left.next.pred = center;
-        center.next = left.next;
+        if (left.next != null){
+            left.next.pred = center;
+            center.next = left.next;
+        }else{
+            center.next = null;
+        }
         left.next = center;
         center.pred = left;
     }
@@ -161,8 +167,12 @@ public class LSAmatrix implements Serializable {
      * @param center новий елемент
      */
     private void insertPredOperator(Operator right ,Operator center){
-        right.pred.next = center;
-        center.pred = right.pred;
+        if(right.pred !=  null){
+            right.pred.next = center;
+            center.pred = right.pred;
+        }else{
+            center.pred = null;
+        }
         right.pred = center;
         center.next = right;
     }

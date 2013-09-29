@@ -18,7 +18,7 @@ public class X extends Operator{
     
     public Operator next(boolean cond) {
         if (cond){
-            if(next.type == Type.O || next.type == Type.I){
+            if(next.isConnection()){
                 return next.next();
             }else{
                 return next;

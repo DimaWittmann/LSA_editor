@@ -26,6 +26,16 @@ public class YPanel extends OpPanel{
         int posX = position.width - font.getSize()*operator.toString().length()/4;
         int posY = position.height + font.getSize()/2;
         g.drawString(operator.toString(), posX, posY);
+        
+        if(operator.pred != null){//TODO допрацювати для висячих вершин
+            g.drawLine(this.points[1].width, this.points[1].height-(int)(heightCell*0.3), 
+                this.points[1].width, this.points[1].height);
+             drawDownArrow(g, this.points[1].width, this.points[1].height);
+        }
+        if(operator.next() != null){
+            g.drawLine(this.points[3].width, this.points[3].height, 
+                this.points[3].width, this.points[3].height+(int)(heightCell*0.2));
+        }
     }
     
     @Override
@@ -34,21 +44,19 @@ public class YPanel extends OpPanel{
             g.drawLine(this.points[3].width, this.points[3].height, 
                     operator.next().panel.points[1].width, 
                     operator.next().panel.points[1].height);
-            drawDownArrow(g, operator.next().panel.points[1].width, operator.next().panel.points[1].height);
         }else{
-            int l = (int) (AlgPanel.widthCell*(0.5+0.2*Math.random()));
+            int l = (int) (AlgPanel.widthCell*(0.5+1*Math.random()));
             Dimension d = new Dimension(widthCell*numRow - widthCell/2, 
-                    heightCell*numColon);;
-            g.drawLine(this.points[3].width, this.points[3].height, d.width, d.height);
-            g.drawLine(d.width, d.height, d.width + l, d.height);
+                    heightCell*numColon);
+            g.drawLine(this.points[3].width, this.points[3].height+(int)(heightCell*0.2),
+                    this.points[3].width + l, this.points[3].height+(int)(heightCell*0.2));
             
             int diff =  operator.next().pos-operator.pos;
-            g.drawLine(d.width + l, d.height, 
+            g.drawLine(this.points[3].width + l, this.points[3].height+(int)(heightCell*0.2), 
                     d.width + l, d.height + (diff-1)*heightCell);
             g.drawLine(d.width + l, d.height + (diff-1)*heightCell, 
                     d.width, d.height + (diff-1)*heightCell);
             drawLeftArrow(g, d.width, d.height + (diff-1)*heightCell);
-            
         }
     } 
     
