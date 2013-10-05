@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import moore.Synthesizer;
 import parser.ParseException;
 import parser.Parser;
 
@@ -31,70 +32,70 @@ public class MenuListener implements ActionListener{
         public void actionPerformed(ActionEvent e) {
             switch(e.getActionCommand()){
                 case "Run":
-                    try {
-                        controller.parser.linkTokens(controller.parser.getTokens(controller.wp.inputArea.getText()));
-                        LSAmatrix m = controller.parser.toMatrix();
-                        controller.wp.outputArea.setText(m.toString());
-                    } catch (ParseException ex) {
-                        Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        controller.wp.outputArea.setText(ex.getMessage());
-                    }
+                    controller.parseLSA();
+                    LSAmatrix m = controller.parser.matrix;
+                    controller.writeInfo(m.toString());
                     break;
+                    
+                    
                 case "Validate":
-                    try {
-                        controller.parser.linkTokens(controller.parser.getTokens(controller.wp.inputArea.getText()));
-                        LSAmatrix m = controller.parser.toMatrix(); 
-                        String messages = m.validateMatrix();
-                        if(messages.equals("")){
-                            controller.writeInfo("Matrix is validated\n");
-                        }else{
-                            controller.writeInfo("Some problems with vertexes: \n" 
-                                    + messages );
-                        }
-                        controller.writeInfo(m.showRoads());
-                        
-                    } catch (ParseException ex) {
-                        Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        controller.writeInfo(ex.getMessage());
+                    controller.parseLSA();
+                    m = controller.parser.matrix;
+                    String messages = m.validateMatrix();
+                    if(messages.equals("")){
+                        controller.writeInfo("Matrix is validated\n");
+                    }else{
+                        controller.writeInfo("Some problems with vertexes: \n"
+                                + messages );
                     }
+                    controller.writeInfo(m.showRoads());
                     break;
+                    
+                    
                 case "Draw algorithm":
                     controller.algController.drawAlgoFrame();
                     break;
+                    
+                    
+                case "Synthesize automaton":
+                    controller.parseLSA();
+                    Synthesizer syn = new Synthesizer(controller.parser);
+                    syn.findAllConnetions();
+                    controller.writeInfo(syn.showConnections());
+                    break;
+                    
+                    
                 case "New":
                     controller.parser = new Parser();
                     controller.setOptionalTitle("no name");
                     controller.wp.inputArea.setText("");
                     controller.wp.outputArea.setText("");
                     break;
+                    
+                    
                 case "Save":
                     JFileChooser fc = new JFileChooser();
                     int res = fc.showSaveDialog(controller.wp);
                     
                     if(res == JFileChooser.APPROVE_OPTION){
                         ObjectOutputStream oos = null;
+                        File file = fc.getSelectedFile();
+                        controller.setOptionalTitle(file.getName());
+
                         try {
-                            
-                            File file = fc.getSelectedFile();
-                            controller.setOptionalTitle(file.getName());
-                            
                             FileOutputStream fos = new FileOutputStream(file);
                             oos = new ObjectOutputStream(fos);
-                            controller.readLSA();
-                            oos.writeObject(controller.parser.parse());
+                            controller.parseLSA();
+                            oos.writeObject(controller.parser.matrix);
                             oos.flush();
-                        } catch ( IOException | ParseException ex) {
-                            Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
-                            controller.writeInfo(ex.getMessage());
-                        } finally {
-                            try {
-                                oos.close();
-                            } catch (IOException ex) {
-                                Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(MenuListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
+                        
                     }
                     break;
+                    
+                    
                 case "Load":
                     //FIXME не завантажує безумовні переходи
                     fc = new JFileChooser();

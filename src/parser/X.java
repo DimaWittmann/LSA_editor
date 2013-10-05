@@ -17,14 +17,17 @@ public class X extends Operator{
     }
     
     public Operator next(boolean cond) {
+        Operator next;
         if (cond){
-            if(next.isConnection()){
-                return next.next();
-            }else{
-                return next;
-            }
+            next = this.next;
         }else{
-            return next.next;
+            next = this.next.next;
+        }
+        
+        if(next.isConnection()){
+            return next.next();
+        }else{
+            return next;
         }
         
     }

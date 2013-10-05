@@ -43,6 +43,8 @@ public class WorkPanel extends JPanel{
         validateItem.addActionListener(listener);
         JMenuItem drawAlgo = new JMenuItem("Draw algorithm");
         drawAlgo.addActionListener(listener);
+        JMenuItem synthesize = new JMenuItem("Synthesize automaton");
+        synthesize.addActionListener(listener);
         
         fileMenu.add(newItem);
         fileMenu.add(saveItem);
@@ -51,6 +53,7 @@ public class WorkPanel extends JPanel{
         runMenu.add(runItem);
         runMenu.add(validateItem);
         runMenu.add(drawAlgo);
+        runMenu.add(synthesize);
         
         menuBar.add(fileMenu);
         menuBar.add(runMenu);

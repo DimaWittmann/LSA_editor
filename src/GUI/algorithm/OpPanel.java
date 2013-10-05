@@ -12,8 +12,8 @@ import parser.Operator;
  */
 public abstract class OpPanel{
     
-    protected static int width = 120;
-    protected static int height = 40;
+    protected static int width = 60;
+    protected static int height = 20;
     /**
      * Чотири точки
      * [0]ліво, [1]верх, [2]право, [3]низ

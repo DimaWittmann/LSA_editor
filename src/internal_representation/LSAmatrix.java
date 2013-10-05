@@ -12,16 +12,16 @@ import static parser.Operator.Type.*;
  */
 public class LSAmatrix implements Serializable {
     public int dimension;
-    public int [][] operationalTop;
+    public int [][] transitions;
     public String [] ids; 
     public List<List<Integer>> roads;
             
     public LSAmatrix(int dimension) {
         this.dimension = dimension;
-        operationalTop = new int[dimension][dimension];
+        transitions = new int[dimension][dimension];
         for(int i=0;i<dimension;i++){
             for (int j = 0; j < dimension; j++) {
-                operationalTop[i][j] = 0;
+                transitions[i][j] = 0;
             }
         }
         ids = new String[dimension];
@@ -78,8 +78,8 @@ public class LSAmatrix implements Serializable {
                 case S:
                 case Y:
                     Operator step = null;
-                    for (int j = 0; j < this.operationalTop.length; j++) {
-                        if(this.operationalTop[curr.pos][j] == 1){
+                    for (int j = 0; j < this.transitions.length; j++) {
+                        if(this.transitions[curr.pos][j] == 1){
                             step = operators.get(j);
                             break;
                         }
@@ -106,10 +106,10 @@ public class LSAmatrix implements Serializable {
                     
                     Operator stepTrue = null;
                     Operator stepFalse = null;
-                    for (int j = 0; j < this.operationalTop.length; j++) {
-                        if(this.operationalTop[curr.pos][j] == 1){
+                    for (int j = 0; j < this.transitions.length; j++) {
+                        if(this.transitions[curr.pos][j] == 1){
                             stepTrue = operators.get(j);
-                        }else if(this.operationalTop[curr.pos][j] == 2){
+                        }else if(this.transitions[curr.pos][j] == 2){
                             stepFalse = operators.get(j);
                         }
                     }
@@ -200,7 +200,7 @@ public class LSAmatrix implements Serializable {
             result += cell;
             
             for (int j = 0; j < dimension; j++) {
-                cell = String.valueOf(operationalTop[i][j]);
+                cell = String.valueOf(transitions[i][j]);
                 while(cell.length() < rowWidth){
                     cell += " ";
                 }
@@ -219,9 +219,9 @@ public class LSAmatrix implements Serializable {
         int [] inputs = new int [dimension];
         int [] outputs = new int [dimension];
         
-        for (int i = 0; i < operationalTop.length; i++) {
-            for (int j = 0; j < operationalTop[i].length; j++) {
-                if (operationalTop[i][j] != 0){
+        for (int i = 0; i < transitions.length; i++) {
+            for (int j = 0; j < transitions[i].length; j++) {
+                if (transitions[i][j] != 0){
                     inputs[i]++;
                     outputs[j]++;
                 }
@@ -270,20 +270,20 @@ public class LSAmatrix implements Serializable {
             road.add(curr);
             if(ids[curr].charAt(0) == 'X'){
                 List<Integer> old_road = new ArrayList<>(road);
-                for (int i = 0; i < operationalTop[curr].length; i++) {
+                for (int i = 0; i < transitions[curr].length; i++) {
 
-                    if(operationalTop[curr][i] == 1 ){
+                    if(transitions[curr][i] == 1 ){
                         getRoad(i, road);
                     }
-                    if(operationalTop[curr][i] == 2 ){
+                    if(transitions[curr][i] == 2 ){
                         getRoad(i, old_road);
                     }
                 }
             }else if(ids[curr].charAt(0) == 'E'){
                 roads.add(road);
             }else{
-                for (int i = 0; i < operationalTop[curr].length; i++) {
-                    if(operationalTop[curr][i]>0 ){
+                for (int i = 0; i < transitions[curr].length; i++) {
+                    if(transitions[curr][i]>0 ){
                         getRoad(i, road);
                     }
                 }

@@ -28,9 +28,9 @@ public class Parser {
      */
     public LSAmatrix parse(String text) throws ParseException{
         LSA = text;
-        start = getTokens(text);
-        linkTokens(start);
-        matrix = toMatrix(start);
+        first = getTokens(text);
+        linkTokens(first);
+        matrix = toMatrix(first);
         return matrix;
     }
     /**
@@ -57,7 +57,7 @@ public class Parser {
      */
     public Operator getTokens(String text) throws ParseException{
         LSA = text;
-        System.out.println(text);
+
         boolean operator = true;
         
         text += " ";  // шоб точно розпарсило останній опратор
@@ -140,10 +140,10 @@ public class Parser {
 	        }
         }        
         
-        if( first == null){
+        if( start == null){
             throw new ParseException(warnings.get("S not found"));
         }
-        if(last == null ){
+        if( last == null ){
             throw new ParseException(warnings.get("E not found"));
         }
         return first;
@@ -297,11 +297,11 @@ public class Parser {
         for (Operator op : operational){
             matrix.ids[i] = op.type+op.id;
             if (op.type == X){
-                matrix.operationalTop[op.pos][((X)op).next(true).pos] = 1;
-                matrix.operationalTop[op.pos][((X)op).next(false).pos] = 2;
+                matrix.transitions[op.pos][((X)op).next(true).pos] = 1;
+                matrix.transitions[op.pos][((X)op).next(false).pos] = 2;
             }else{
                 if(op.next() != null){
-                    matrix.operationalTop[op.pos][op.next().pos] = 1;
+                    matrix.transitions[op.pos][op.next().pos] = 1;
                 }
             }
             i++;

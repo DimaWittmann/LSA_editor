@@ -5,6 +5,7 @@ import GUI.algorithm.XPanel;
 import GUI.algorithm.YPanel;
 import java.awt.Dimension;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import parser.Operator;
 import static parser.Operator.Type.X;
 import parser.ParseException;
@@ -23,7 +24,7 @@ public class AlgController {
         this.controller = controller;
         
         panel = new AlgPanel(this);
-        
+                
         frame = new JFrame("Algo");
         frame.setMinimumSize(new Dimension(860, 480));
         frame.add(panel);
