@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import moore.Synthesizer;
-import parser.ParseException;
 import parser.Parser;
 
 /**
@@ -122,6 +121,27 @@ public class MenuListener implements ActionListener{
                     }
                     break;
                     
+                    
+                case "Save automaton to XML":
+                    controller.parseLSA();
+                    syn = new Synthesizer(controller.parser);
+                    syn.findAllConnetions();
+                    controller.writeInfo(syn.showConnections());
+                    
+                    fc = new JFileChooser();
+                    res = fc.showSaveDialog(controller.wp);
+                    
+                    if(res == JFileChooser.APPROVE_OPTION){
+                        File file = fc.getSelectedFile();
+                        
+                        syn = new Synthesizer(controller.parser);
+                        syn.findAllConnetions();
+                        syn.saveToXML(file);
+                        
+                        
+                    }
+                    
+                    break;
             }
         } 
 

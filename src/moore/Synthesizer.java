@@ -1,9 +1,12 @@
 package moore;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import parser.Parser;
+import xml.XMLCreator;
+import xml.XMLParser;
 
 /**
  *
@@ -87,4 +90,13 @@ public class Synthesizer {
         }
         return str;
     }
+    
+    public void saveToXML(File file){
+        XMLCreator xmlP = new XMLCreator(file);
+        xmlP.loadData(connetions);
+        xmlP.writeToFile();
+    }
+
 }
+
+

@@ -34,6 +34,8 @@ public class WorkPanel extends JPanel{
         saveItem.addActionListener(listener);
         JMenuItem loadItem = new JMenuItem("Load");
         loadItem.addActionListener(listener);
+        JMenuItem saveXMLItem = new JMenuItem("Save automaton to XML");
+        saveXMLItem.addActionListener(listener);
         
         JMenu runMenu = new JMenu("Run");
         
@@ -49,6 +51,7 @@ public class WorkPanel extends JPanel{
         fileMenu.add(newItem);
         fileMenu.add(saveItem);
         fileMenu.add(loadItem);
+        fileMenu.add(saveXMLItem);
         
         runMenu.add(runItem);
         runMenu.add(validateItem);
