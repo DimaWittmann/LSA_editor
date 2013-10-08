@@ -62,6 +62,11 @@ public abstract class OpPanel{
         g.drawLine(x, y, x+10, y+3);
         g.drawLine(x, y, x+10, y-3);
     }
+    
+    public static void drawRightArrow(Graphics g, int x, int y){
+        g.drawLine(x, y, x-10, y+3);
+        g.drawLine(x, y, x-10, y-3);
+    }
 
     public abstract void drawPanel(Graphics g);
     public abstract void drawConnection(Graphics g);

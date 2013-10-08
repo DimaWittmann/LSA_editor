@@ -19,18 +19,30 @@
     
 	<target name="jar" depends="compile">
 	  	<jar destfile="${bldDir}/jar/LSAEditor.jar">
-	 		<fileset dir="${bldDir}/classes">
-	 	 	  	<include name="**/*.class"/>
-	 		</fileset>
+                    <fileset dir="${bldDir}/classes">
+                            <include name="**/*.class"/>
+                    </fileset>
 
-	 		<manifest>
+                    <manifest>
 		      <attribute name="Main-Class"
-		            value="parser.Parser"/>
+		            value="interaction.Application"/>
 		    </manifest>
 	  	</jar>
   	</target>
+
+  	<target name="javadoc" depends="compile">
+  		<javadoc 
+  			destdir="${bldDir}/docs"
+  			author="true"
+  			version="true">
+  		
+			<fileset dir="${srcDir}">
+		 	  	<include name="**/*.java"/>
+			</fileset>
+ 		</javadoc>
+  	</target>
     
-    <target name="all" depends="jar"/>
+    <target name="all" depends="jar, javadoc"/>
 
 
 </project>

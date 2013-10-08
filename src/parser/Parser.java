@@ -1,5 +1,4 @@
 package parser;
-import interaction.Controller;
 import internal_representation.LSAmatrix;
 import java.util.*;
 import static parser.Operator.Type.*;
@@ -10,16 +9,162 @@ import static parser.Operator.Type.*;
  */
 public class Parser {
     
-    public Map<String, String> warnings;
+    private Map<String, String> warnings;
     public Operator start;
     public Operator first;
     //TODO Зробить нагляд за inputArea для оновлення LSA
     public String LSA;
-    public LSAmatrix matrix;
     
     public Parser() {
         initWargnings();
     }
+    
+    public Parser(LSAmatrix matrix){
+        this();
+        ArrayList<Operator> operators = new ArrayList<>();
+        start = null;
+        first = null;
+        
+        int i = 0;
+        Operator pred = null;
+        for(String id : matrix.ids){
+            Operator curr = null;
+            switch(id.charAt(0)){
+                case 'S':
+                    curr = new S(i);
+                    start = curr;
+                    break;
+                case 'X':
+                    curr = new X(i);
+                    break;
+                case 'Y':
+                    curr = new Y(i);
+                    break;
+                case 'E':
+                    curr = new E(i);
+                    break;
+            }
+            if(first == null){
+                first = curr;
+            }
+            operators.add(curr);
+            curr.pred = pred;
+            curr.id = id.substring(1);
+            if (pred != null){
+                pred.next = curr;
+            }
+            pred = curr;
+            i++;
+            
+        }
+        
+        int numJumps = 0;
+        pred = null;
+        for (Operator curr: operators){
+            switch(curr.type){
+                case S:
+                case Y:
+                    Operator step = null;
+                    for (int j = 0; j < matrix.transitions.length; j++) {
+                        if(matrix.transitions[curr.pos][j] == 1){
+                            step = operators.get(j);
+                            break;
+                        }
+                    }
+                    if(step != null){
+                        if (curr.next() == null || !curr.next().equals(step)){    
+                            //додавання бузумовного переходу
+                            numJumps++;
+
+                            O out = new O(0);
+                            out.id = String.valueOf(numJumps);
+
+                            I in = new I(0);
+                            in.id = String.valueOf(numJumps);
+
+                            insertNextOperator(curr, out);
+                            out.end = in;
+
+                            insertPredOperator(step, in);
+                        }
+                    }
+                    break;
+                case X:
+                    
+                    Operator stepTrue = null;
+                    Operator stepFalse = null;
+                    for (int j = 0; j < matrix.transitions.length; j++) {
+                        if(matrix.transitions[curr.pos][j] == 1){
+                            stepTrue = operators.get(j);
+                        }else if(matrix.transitions[curr.pos][j] == 2){
+                            stepFalse = operators.get(j);
+                        }
+                    }
+                    
+                    if( curr.pos == stepTrue.pos - 1 && curr.pos == stepFalse.pos - 2){
+                        
+                    }else{
+                        numJumps++;
+
+                        O out = new O(0);
+                        out.id = String.valueOf(numJumps);
+                        insertNextOperator(curr, out);
+
+                        I in = new I(0);
+                        in.id = String.valueOf(numJumps);
+                        out.end = in;
+                        insertPredOperator(stepTrue, in);
+
+                        assert (stepTrue != null);
+                        //TODO зробити можливість переходу по false на умову чи безумовний перехід
+                    }
+                    break;
+                case E:
+
+                    break;
+                case I:
+                    break;
+                case O:
+                    break;
+
+            }
+            pred = curr;
+        }
+
+    }
+    
+    /**
+     * Додати оператор попереду іншого
+     * @param left оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertNextOperator(Operator left ,Operator center){
+        if (left.next != null){
+            left.next.pred = center;
+            center.next = left.next;
+        }else{
+            center.next = null;
+        }
+        left.next = center;
+        center.pred = left;
+    }
+    
+    /**
+     * Додати оператор позаду іншого
+     * @param right оператор, до якого додається
+     * @param center новий елемент
+     */
+    private void insertPredOperator(Operator right ,Operator center){
+        if(right.pred !=  null){
+            right.pred.next = center;
+            center.pred = right.pred;
+        }else{
+            center.pred = null;
+        }
+        right.pred = center;
+        center.next = right;
+    }
+    
     /**
      * Повний аналіз програми і генерація матриці
      * @param text програма
@@ -30,7 +175,7 @@ public class Parser {
         LSA = text;
         first = getTokens(text);
         linkTokens(first);
-        matrix = toMatrix(first);
+        LSAmatrix matrix = new LSAmatrix(first);
         return matrix;
     }
     /**
@@ -55,7 +200,7 @@ public class Parser {
      * об'явлення в text
      * @throws parser.ParseException
      */
-    public Operator getTokens(String text) throws ParseException{
+    private Operator getTokens(String text) throws ParseException{
         LSA = text;
 
         boolean operator = true;
@@ -156,7 +301,7 @@ public class Parser {
      * @return старт ЛСА
      * @throws parser.ParseException 
      */
-    public Operator linkTokens(Operator first) throws ParseException{
+    private Operator linkTokens(Operator first) throws ParseException{
         //TODO Реалізувати можливості декількох виходів для одного входу
         
         ArrayList<O> Oids = new ArrayList<>();
@@ -267,50 +412,7 @@ public class Parser {
         warnings.put("Eduplicate","End must be only once");
         warnings.put("illegalChar", "Unknown identifier is present: ");
     }
-    /**
-     * Генерація матриці переходів з графа і відображення позиції - id.
-     * @return LSAmatrix клас преставлення алгоритму
-     */
-    public LSAmatrix toMatrix(){
-
-        return toMatrix(this.first);
-
-    }
-    /**
-     * Генерація матриці переходів з графа і відображення позиції - id.
-     * @param first перший токен графа
-     * @return LSAmatrix клас преставлення алгоритму
-     */
-    public LSAmatrix toMatrix(Operator first){
-        ArrayList<Operator> operational = new ArrayList<>();
-        
-        Operator curr = first;
-        while(curr != null){
-            if (curr.type == S||curr.type == Y||curr.type == E||curr.type == X){
-                operational.add(curr);
-            }
-            curr = curr.next;
-        }
-        LSAmatrix matrix = new LSAmatrix(operational.size());
-        
-        int i=0;
-        for (Operator op : operational){
-            matrix.ids[i] = op.type+op.id;
-            if (op.type == X){
-                matrix.transitions[op.pos][((X)op).next(true).pos] = 1;
-                matrix.transitions[op.pos][((X)op).next(false).pos] = 2;
-            }else{
-                if(op.next() != null){
-                    matrix.transitions[op.pos][op.next().pos] = 1;
-                }
-            }
-            i++;
-        }
-        
-        this.matrix = matrix;
-        return matrix;
-    }
-    
+   
     public String createLSA(){
         String text = "";
         Operator curr = first;
@@ -321,9 +423,4 @@ public class Parser {
         return text;
     }
 
-    public static void main(String [] args){
-       
-        Controller controller = new Controller();
-    }
-    
 }
