@@ -1,5 +1,6 @@
 package interaction;
 import GUI.WorkPanel;
+import GUI.algorithm.AlgPanel;
 import internal_representation.LSAmatrix;
 import java.awt.Dimension;
 import java.util.logging.Level;
@@ -15,27 +16,24 @@ import parser.Parser;
  */
 public class Mediator {
     
-    public AlgController algController;
+    //TODO замінити модифікатор доступу до елементів і реалізувати делагацію потрібних методів
+    public AlgPanel algPanel;
     public JFrame frame;
     public WorkPanel wp;
     public Parser parser;
-    public MenuListener menuListener;
+
     public Synthesizer synthesizer;
-    public AutomaController automaController;
+
     public LSAmatrix matrix;
     
     public Mediator(){
         parser = new Parser();
         
-        
+        algPanel = new AlgPanel();
         
         synthesizer = new Synthesizer(parser);
-        automaController = new AutomaController(synthesizer);
-        
-        algController = new AlgController();
-       
-        menuListener = new MenuListener();
-        
+
+        MenuListener menuListener = new MenuListener();
         wp = new WorkPanel(menuListener);
         
         frame = new JFrame("Editor");

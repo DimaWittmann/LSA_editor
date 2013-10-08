@@ -1,12 +1,12 @@
 package moore;
 
+import interaction.Application;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import parser.Parser;
 import xml.XMLCreator;
-import xml.XMLParser;
 
 /**
  *
@@ -16,17 +16,19 @@ public class Synthesizer {
     public Parser parser;
     public int [] posToZid;
     public List<Connection> connetions;
+    public List<State> states;
     public int numCond;
     
     public Synthesizer(Parser parser){
-        this.parser = parser;
-        posToZid = new int [parser.matrix.ids.length];
-        connetions = new ArrayList<>();
-        
+        this.parser = parser;    
+    }
+    
+    private void initSunthesizer(){
+        posToZid = new int [Application.mediator.matrix.ids.length];
         int i = 0;
         int z = 1;
         numCond = 1;
-        for (String id: parser.matrix.ids){
+        for (String id: Application.mediator.matrix.ids){
             if(id.charAt(0) == 'X'){
                 posToZid[i] = -numCond;
                 numCond++;
@@ -41,10 +43,28 @@ public class Synthesizer {
         numCond -= 1;
         
     }
-    
 
+    /**
+     * Знайти всі переходи в графі
+     */
     public void findAllConnetions(){
-        int [][] trans = parser.matrix.transitions;
+        initSunthesizer();
+        connetions = new ArrayList<>();
+        states = new ArrayList<>(); 
+        
+        
+        for (int i = 0; i < posToZid.length; i++) {
+            if(posToZid[i] >= 0){
+                State state = new State(posToZid[i]);
+                state.allStates = states;
+                if(!states.contains(state)){
+                    states.add(state);
+                }
+            }
+        }
+        
+        
+        int [][] trans = Application.mediator.matrix.transitions;
         for (int i = 0; i < trans.length; i++) {
             if(posToZid[i] >= 0){
                 findConnection(i, i, new int[numCond]);
@@ -54,7 +74,7 @@ public class Synthesizer {
     
     public void findConnection(int from, int curr, int []conds){
         
-        int [][] trans = parser.matrix.transitions;
+        int [][] trans = Application.mediator.matrix.transitions;
         
         
         for (int i = 0; i < trans[curr].length; i++) {
@@ -65,10 +85,14 @@ public class Synthesizer {
                     conds[index] = trans[curr][i];
                 }
                 if(posToZid[i] >= 0){
-                    Connection conn = new Connection(from, posToZid[i], conds, parser.matrix.ids[from]);
+                    Connection conn = new Connection(posToZid[from], posToZid[i], 
+                            conds, Application.mediator.matrix.ids[from]);
                     System.out.println(conn);
                     connetions.add(conn);
                     conds = Arrays.copyOf(conds, conds.length);
+                    
+                    states.get(states.indexOf(new State(posToZid[from]))).outConnections.add(conn);
+                    states.get(states.indexOf(new State(posToZid[i]))).inConnections.add(conn);
                 }else{
                     findConnection(from, i, Arrays.copyOf(conds, conds.length));
                 }
@@ -79,7 +103,7 @@ public class Synthesizer {
     
     public String showConnections(){
         String str = "Conditions:";
-        for(String ids: parser.matrix.ids){
+        for(String ids: Application.mediator.matrix.ids){
             if(ids.charAt(0) == 'X'){
                 str += ids+" ";
             }

@@ -1,6 +1,8 @@
 package GUI.algorithm;
 import interaction.Application;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import parser.Operator;
 import static parser.Operator.Type.X;
@@ -13,8 +15,12 @@ public class AlgPanel extends JPanel{
     
     protected static int widthCell = 100;
     protected static int heightCell = 50;
+    protected JFrame frame;
     
     public AlgPanel(){
+        frame = new JFrame("Algo");
+        frame.setMinimumSize(new Dimension(860, 480));
+        frame.add(this);
     }
 
     @Override
@@ -51,6 +57,13 @@ public class AlgPanel extends JPanel{
             }
             curr = curr.next;
         }
+    }
+       
+        public void drawAlgoFrame(){
+            initOperatorPanels();
+            frame.setVisible(true);
+        }
+        
         
     }
-}
+    

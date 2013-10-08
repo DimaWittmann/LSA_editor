@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Resource;
 import javax.swing.JFileChooser;
 import parser.Parser;
 
@@ -43,7 +42,7 @@ public class MenuListener implements ActionListener{
                     
                     
                 case "Draw algorithm":
-                    Application.mediator.algController.drawAlgoFrame();
+                    Application.mediator.algPanel.drawAlgoFrame();
                     break;
                     
                     
@@ -51,7 +50,6 @@ public class MenuListener implements ActionListener{
                     Application.mediator.parseLSA();
                     Application.mediator.synthesizer.findAllConnetions();
                     Application.mediator.writeInfo(Application.mediator.synthesizer.showConnections());
-                    Application.mediator.automaController.drawPanel();
                     break;
                     
                     
