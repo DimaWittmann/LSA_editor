@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import parser.Operator;
+import static parser.Operator.Type.S;
 
 /**
  *
@@ -27,7 +28,7 @@ public class YPanel extends OpPanel{
         int posY = position.height + font.getSize()/2;
         g.drawString(operator.toString(), posX, posY);
         
-        if(operator.pred != null){//TODO допрацювати для висячих вершин
+        if(operator.pred != null && operator.type != S){//TODO допрацювати для висячих вершин
             g.drawLine(this.points[1].width, this.points[1].height-(int)(heightCell*0.3), 
                 this.points[1].width, this.points[1].height);
              drawDownArrow(g, this.points[1].width, this.points[1].height);

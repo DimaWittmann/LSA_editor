@@ -2,6 +2,8 @@ package xml;
 
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import internal_representation.AutomatonTable;
+import java.awt.Point;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,15 +27,14 @@ import org.w3c.dom.Text;
 public class XMLCreator {
 
     List<Connection> connections;
+    List<String> conditions;
+    List<String> ids;
+    List<Point> points;
     Document dom;
     File file;
 
     public XMLCreator(File file) {
         this.file = file;
-    }
-    
-    public void loadData(List<Connection>connections){
-        this.connections = connections;
     }
 
     private void createDocument(){
@@ -49,36 +50,61 @@ public class XMLCreator {
     }
     
     private void createDOMTree(){
-        Element rootEle = dom.createElement("connections");
+        Element rootEle = dom.createElement("table");
         dom.appendChild(rootEle);
+        
+        Element idsRoot = dom.createElement("vertexes");
+        rootEle.appendChild(idsRoot);
+        
+        for (int i = 0; i < ids.size(); i++) {
+            Element vertex = dom.createElement("vertex");
+            vertex.setAttribute("zId", String.valueOf(i));
+            if(points != null && points.size() == ids.size()){
+                vertex.setAttribute("x", String.valueOf(points.get(i).x));
+                vertex.setAttribute("y", String.valueOf(points.get(i).y));
+            }
+            Text id = dom.createTextNode(ids.get(i));
+            vertex.appendChild(id);
+            idsRoot.appendChild(vertex);
+        }
+        
+        Element condRoot = dom.createElement("conditions");
+        rootEle.appendChild(condRoot);
+        
+        for (int i = 0; i < conditions.size(); i++) {
+            Element cEl = addTextElement("condition", conditions.get(i));
+            cEl.setAttribute("id", String.valueOf(i));
+            condRoot.appendChild(cEl);
+        }
+        
+        
+        Element connRoot = dom.createElement("connections");
+        rootEle.appendChild(connRoot);
         
         int i = 0;
         for(Connection nextConn: connections){
             Element connEle = createConnElement(nextConn , i);
-            rootEle.appendChild(connEle);
+            connRoot.appendChild(connEle);
             i++;
         }
-
+        
     }
     
     private Element createConnElement(Connection c, int id){
         
-        Element connection = dom.createElement("Connection");
+        Element connection = dom.createElement("connection");
         connection.setAttribute("id", String.valueOf(id));
         connection.setAttribute("signal", c.signalId);
         connection.appendChild(addTextElement("from", String.valueOf(c.from)));
         connection.appendChild(addTextElement("to", String.valueOf(c.to)));
        
-        Element conditions = dom.createElement("conditions");
+        Element cond = dom.createElement("conditions");
         for (int i = 0; i < c.conditions.length; i++) {
             Element xEl = addTextElement("X", String.valueOf(c.conditions[i]));
-            xEl.setAttribute("id", String.valueOf(i));
-            conditions.appendChild(xEl);
+            xEl.setAttribute("id", conditions.get(i));
+            cond.appendChild(xEl);
         }
-        
-        connection.appendChild(conditions);
-        
-        
+        connection.appendChild(cond);
         return connection;
     }
     
@@ -90,7 +116,12 @@ public class XMLCreator {
         return newE;
     }
     
-    public void writeToFile() {
+    public void writeToFile(AutomatonTable table) {
+        this.connections = table.connections;
+        this.conditions = table.conditions;
+        this.ids = table.ids;
+        this.points = table.points;
+        
         createDocument();
         OutputFormat format = new OutputFormat(dom);
         format.setIndenting(true);

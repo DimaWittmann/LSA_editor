@@ -2,10 +2,8 @@ package moore;
 
 import interaction.Application;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import parser.Parser;
 import xml.XMLCreator;
 
 /**
@@ -13,17 +11,17 @@ import xml.XMLCreator;
  * @author wittman
  */
 public class Synthesizer {
-    public Parser parser;
+
     public int [] posToZid;
-    public List<Connection> connetions;
-    public List<State> states;
     public int numCond;
     
-    public Synthesizer(Parser parser){
-        this.parser = parser;    
-    }
-    
     private void initSunthesizer(){
+        Application.mediator.automatonTable.conditions.clear();
+        Application.mediator.automatonTable.ids.clear();
+        
+        List<String> conditions = Application.mediator.automatonTable.conditions;
+        List<String> ids = Application.mediator.automatonTable.ids;
+        
         posToZid = new int [Application.mediator.matrix.ids.length];
         int i = 0;
         int z = 1;
@@ -31,10 +29,15 @@ public class Synthesizer {
         for (String id: Application.mediator.matrix.ids){
             if(id.charAt(0) == 'X'){
                 posToZid[i] = -numCond;
+                conditions.add(id);
                 numCond++;
             }else if(id.charAt(0) == 'S' ||id.charAt(0) == 'E' ){
                 posToZid[i] = 0;   
+                if (id.charAt(0) == 'S'){
+                    ids.add(0,id);
+                }
             }else{
+                ids.add(id);
                 posToZid[i] = z;
                 z++;
             }
@@ -49,21 +52,7 @@ public class Synthesizer {
      */
     public void findAllConnetions(){
         initSunthesizer();
-        connetions = new ArrayList<>();
-        states = new ArrayList<>(); 
-        
-        
-        for (int i = 0; i < posToZid.length; i++) {
-            if(posToZid[i] >= 0){
-                State state = new State(posToZid[i]);
-                state.allStates = states;
-                if(!states.contains(state)){
-                    states.add(state);
-                }
-            }
-        }
-        
-        
+        Application.mediator.automatonTable.connections.clear();
         int [][] trans = Application.mediator.matrix.transitions;
         for (int i = 0; i < trans.length; i++) {
             if(posToZid[i] >= 0){
@@ -72,11 +61,9 @@ public class Synthesizer {
         }
     }
     
-    public void findConnection(int from, int curr, int []conds){
-        
+    private void findConnection(int from, int curr, int []conds){
+        List<Connection> connections = Application.mediator.automatonTable.connections;
         int [][] trans = Application.mediator.matrix.transitions;
-        
-        
         for (int i = 0; i < trans[curr].length; i++) {
             
             if(trans[curr][i] > 0){
@@ -87,12 +74,9 @@ public class Synthesizer {
                 if(posToZid[i] >= 0){
                     Connection conn = new Connection(posToZid[from], posToZid[i], 
                             conds, Application.mediator.matrix.ids[from]);
-                    System.out.println(conn);
-                    connetions.add(conn);
+                    connections.add(conn);
                     conds = Arrays.copyOf(conds, conds.length);
                     
-                    states.get(states.indexOf(new State(posToZid[from]))).outConnections.add(conn);
-                    states.get(states.indexOf(new State(posToZid[i]))).inConnections.add(conn);
                 }else{
                     findConnection(from, i, Arrays.copyOf(conds, conds.length));
                 }
@@ -102,14 +86,16 @@ public class Synthesizer {
     }
     
     public String showConnections(){
+        List<Connection> connections = Application.mediator.automatonTable.connections;
+        
         String str = "Conditions:";
-        for(String ids: Application.mediator.matrix.ids){
+        for(String ids: Application.mediator.automatonTable.ids){
             if(ids.charAt(0) == 'X'){
                 str += ids+" ";
             }
         }
         str += "\n";
-        for (Connection conn: connetions){
+        for (Connection conn: connections){
             str += conn.toString()+"\n";
         }
         return str;
@@ -117,10 +103,9 @@ public class Synthesizer {
     
     public void saveToXML(File file){
         XMLCreator xmlP = new XMLCreator(file);
-        xmlP.loadData(connetions);
-        xmlP.writeToFile();
+        xmlP.writeToFile(Application.mediator.automatonTable);
     }
-
+    
 }
 
 

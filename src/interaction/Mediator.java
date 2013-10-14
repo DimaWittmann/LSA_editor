@@ -1,8 +1,12 @@
 package interaction;
+import interaction.menu_listeners.FileMenuListener;
 import GUI.WorkPanel;
 import GUI.algorithm.AlgPanel;
+import GUI.automaton.AutomatonFrame;
+import internal_representation.AutomatonTable;
 import internal_representation.LSAmatrix;
 import java.awt.Dimension;
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -21,20 +25,20 @@ public class Mediator {
     public JFrame frame;
     public WorkPanel wp;
     public Parser parser;
-
     public Synthesizer synthesizer;
 
     public LSAmatrix matrix;
+    public AutomatonFrame automatonFrame;
+    public AutomatonTable automatonTable;
     
     public Mediator(){
         parser = new Parser();
+        synthesizer = new Synthesizer();
+        automatonTable = new AutomatonTable();
         
         algPanel = new AlgPanel();
-        
-        synthesizer = new Synthesizer(parser);
-
-        MenuListener menuListener = new MenuListener();
-        wp = new WorkPanel(menuListener);
+        wp = new WorkPanel();
+        automatonFrame = new AutomatonFrame();
         
         frame = new JFrame("Editor");
         frame.add(wp);
@@ -64,12 +68,23 @@ public class Mediator {
         }
     }
     
+    public void showAutomatonFrame(){
+        automatonFrame.panel.initPanels();
+        automatonFrame.setVisible(true);
+    }
     /**
      * Вивести інформацію у вікні інформації
      * @param str інфа
      */
     public void writeInfo(String str){
-        wp.outputArea.setText(str + wp.outputArea.getText());
+        wp.outputArea.setText(str +"\n" + wp.outputArea.getText());
+    }
+    
+    public void saveXML(File file){
+//        parseLSA();
+//        synthesizer.findAllConnetions();
+        automatonFrame.panel.updateLocation();
+        synthesizer.saveToXML(file);
     }
     
 }

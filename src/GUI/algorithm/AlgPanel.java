@@ -1,4 +1,5 @@
 package GUI.algorithm;
+import GUI.WorkPanel;
 import interaction.Application;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -18,8 +19,10 @@ public class AlgPanel extends JPanel{
     protected JFrame frame;
     
     public AlgPanel(){
+        this.setLayout(null);
+        
         frame = new JFrame("Algo");
-        frame.setMinimumSize(new Dimension(860, 480));
+        frame.setSize(new Dimension(WorkPanel.width, WorkPanel.height));
         frame.add(this);
     }
 
@@ -38,10 +41,10 @@ public class AlgPanel extends JPanel{
         } 
     }
     
-       public void initOperatorPanels(){
+    public void initOperatorPanels(){
         Application.mediator.parseLSA();
 
-        Operator curr = Application.mediator.parser.start;
+        Operator curr = Application.mediator.parser.first;
 
         int posX = 1;
         int posY = 1;
@@ -59,11 +62,12 @@ public class AlgPanel extends JPanel{
         }
     }
        
-        public void drawAlgoFrame(){
-            initOperatorPanels();
-            frame.setVisible(true);
-        }
-        
-        
+    public void drawAlgoFrame(){
+        //TODO винести створення в Mediator
+        initOperatorPanels();
+        frame.setVisible(true);
     }
+
+        
+}
     

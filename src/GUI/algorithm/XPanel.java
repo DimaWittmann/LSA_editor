@@ -1,10 +1,8 @@
 package GUI.algorithm;
 
 import static GUI.algorithm.AlgPanel.heightCell;
-import static GUI.algorithm.AlgPanel.widthCell;
 import static GUI.algorithm.OpPanel.drawDownArrow;
 import static GUI.algorithm.OpPanel.drawLeftArrow;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import parser.Operator;

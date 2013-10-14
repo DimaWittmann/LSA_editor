@@ -53,6 +53,9 @@ public abstract class Operator {
         if(next == null){
             return null;
         }
+        if(next.type == Type.S){
+            return null;
+        }
         if(next.type == Type.O || next.type == Type.I){
             return next.next();
         }else{
