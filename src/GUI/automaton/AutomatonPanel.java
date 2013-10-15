@@ -3,6 +3,7 @@ package GUI.automaton;
 import static GUI.automaton.StatePanel.R;
 import interaction.Application;
 import interaction.StateMouseListener;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,6 +35,7 @@ public class AutomatonPanel extends JPanel{
      */
     public void initPanels(){
         
+        this.removeAll();
         List<String> ids = Application.mediator.automatonTable.ids;
         List<Point> points =  Application.mediator.automatonTable.points; 
         int x = R*2;
@@ -105,9 +107,29 @@ public class AutomatonPanel extends JPanel{
                 
                 int d = (int) Math.sqrt(((xTo- xFrom)*(xTo- xFrom)+(yTo- yFrom)*(yTo- yFrom)));
                 
-                
+                //FIXME реалізувати нормально математику
+                //FIXME приводити до int тільки при самому малюванні
                 int x12 = xTo - xFrom;
                 int y12 = yTo - yFrom;
+                
+                int degree = -20;
+                
+                double len = Math.sqrt(x12*x12+y12*y12);
+                int xF = (int) ((x12/len*Math.cos(Math.PI/180*20) - y12/len*Math.sin(Math.PI/180*20))*R);
+                int yF = (int) ((x12/len*Math.sin(Math.PI/180*20) + y12/len*Math.cos(Math.PI/180*20))*R);
+ //               g.fillOval(xFrom+xF, yFrom+yF, 5, 5);    //точка виходу з кола
+                
+                int xI = (int) (((-x12)/len*Math.cos(Math.PI/180*degree) - (-y12)/len*Math.sin(Math.PI/180*degree))*R);
+                int yI = (int) (((-x12)/len*Math.sin(Math.PI/180*degree) + (-y12)/len*Math.cos(Math.PI/180*degree))*R);
+//                g.fillOval(xTo+xI, yTo+yI, 5, 5);
+                
+                
+                xFrom += xF;
+                yFrom += yF;
+                xTo += xI;
+                yTo += yI;
+                x12 = xTo - xFrom;
+                y12 = yTo - yFrom;
                 
                 double xp = - y12;
                 double yp = x12;
@@ -121,9 +143,9 @@ public class AutomatonPanel extends JPanel{
                 
                 String cond = "";
                 if(xFrom < xTo){
-                    cond += ">>>";
+                    cond += ">";
                 }else{
-                    cond += "<<<";
+                    cond += "<";
                 }
                 for (int i = 0; i < conn.conditions.length; i++) {
                     if(conn.conditions[i] == 1){
@@ -133,15 +155,49 @@ public class AutomatonPanel extends JPanel{
                     }
                 }
                 if(xFrom < xTo){
-                    cond += ">>>";
+                    cond += ">";
                 }else{
-                    cond += "<<<";
+                    cond += "<";
                 }
                 Font defaultFont = g.getFont();
                 g.setFont(new Font(defaultFont.getFontName(), Font.BOLD, defaultFont.getSize()));
-                g.drawString(cond, (int)(xLen + xp*d/8)-30, (int)(yLen + yp*d/8));
+                g.drawString(cond, (int)(xLen + xp*d/8)-15, (int)(yLen + yp*d/8));
                 
-               
+                
+                double xA = xTo - ctrlx;    //малюємо стрілочку
+                double yA = yTo - ctrly;
+                double lenA = Math.sqrt(xA*xA+yA*yA);
+                xA = xA/lenA*(lenA-10);
+                yA = yA/lenA*(lenA-10);
+                xA += ctrlx;                //початок стрілки
+                yA += ctrly;
+
+                
+
+                double xArrow = xTo - xA;
+                double yArrow = yTo - yA;
+                double lenArrow = Math.sqrt(xArrow*xArrow + yArrow*yArrow);
+                xArrow /= lenArrow;
+                yArrow /= lenArrow;
+                double xW = - yArrow;
+                double yW = xArrow;
+                xW *= 5;
+                yW *= 5;
+                xW += xA;
+                yW += yA;
+
+                double xW1 = yArrow;
+                double yW1 = -xArrow;
+                xW1 *= 5;
+                yW1 *= 5;
+                xW1 += xA;
+                yW1 += yA;
+
+                int [] xarray = {(int)xW, xTo, (int)xW1};
+                int [] yarray = {(int)yW, yTo,(int) yW1};
+                g.fillPolygon(xarray, yarray, 3);
+
+                
                 Graphics2D g2 = (Graphics2D) g;
                 QuadCurve2D q = new QuadCurve2D.Float();
                 q.setCurve(xFrom, yFrom, ctrlx, ctrly, xTo, yTo);
