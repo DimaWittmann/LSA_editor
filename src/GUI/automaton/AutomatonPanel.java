@@ -3,7 +3,6 @@ package GUI.automaton;
 import static GUI.automaton.StatePanel.R;
 import interaction.Application;
 import interaction.StateMouseListener;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 import moore.Connection;
+import moore.compatible_coding.SynchroState;
 
 /**
  *
@@ -37,13 +37,20 @@ public class AutomatonPanel extends JPanel{
         
         this.removeAll();
         List<String> ids = Application.mediator.automatonTable.ids;
-        List<Point> points =  Application.mediator.automatonTable.points; 
+        List<Point> points =  Application.mediator.automatonTable.points;
+        List<boolean[]> codes = Application.mediator.automatonTable.codes;
         int x = R*2;
         int y = R*2;
         StateMouseListener mListener = new StateMouseListener();
         
         for (int i = 0; i < ids.size(); i++) {
             StatePanel panel = new StatePanel("Z"+String.valueOf(i), ids.get(i));
+            if(codes != null){
+                panel.setCode(SynchroState.codeToString(codes.get(i)));
+            }else{
+                panel.setCode(SynchroState.codeToString(SynchroState.intToCode(i, 
+                        (int) Math.round(Math.ceil(Math.log(ids.size())/Math.log(2))))));
+            }
             panel.addMouseMotionListener(mListener);
             panel.addMouseListener(mListener);
             
@@ -95,32 +102,33 @@ public class AutomatonPanel extends JPanel{
                     }
                 }
                 g.drawString(cond, x, y + R);
+                fillArrow(new Point(statePanels.get(conn.from).getLocation().x-10, statePanels.get(conn.from).getLocation().y+R),
+                        new Point(statePanels.get(conn.from).getLocation().x, statePanels.get(conn.from).getLocation().y+R), g);
+                
             }else{
-                int xFrom = statePanels.get(conn.from).getCenter().x;
-                int yFrom = statePanels.get(conn.from).getCenter().y;
+                double xFrom = statePanels.get(conn.from).getCenter().x;
+                double yFrom = statePanels.get(conn.from).getCenter().y;
 
                 int xTo = statePanels.get(conn.to).getCenter().x;
                 int yTo = statePanels.get(conn.to).getCenter().y;
                 
-                int xLen = xFrom + (xTo- xFrom)/2;
-                int yLen = yFrom + (yTo- yFrom)/2;
+                double xLen = xFrom + (xTo- xFrom)/2;
+                double yLen = yFrom + (yTo- yFrom)/2;
                 
-                int d = (int) Math.sqrt(((xTo- xFrom)*(xTo- xFrom)+(yTo- yFrom)*(yTo- yFrom)));
-                
-                //FIXME реалізувати нормально математику
-                //FIXME приводити до int тільки при самому малюванні
-                int x12 = xTo - xFrom;
-                int y12 = yTo - yFrom;
+                double d = Math.sqrt(((xTo- xFrom)*(xTo- xFrom)+(yTo- yFrom)*(yTo- yFrom)));
+
+                double x12 = xTo - xFrom;
+                double y12 = yTo - yFrom;
                 
                 int degree = -20;
                 
                 double len = Math.sqrt(x12*x12+y12*y12);
-                int xF = (int) ((x12/len*Math.cos(Math.PI/180*20) - y12/len*Math.sin(Math.PI/180*20))*R);
-                int yF = (int) ((x12/len*Math.sin(Math.PI/180*20) + y12/len*Math.cos(Math.PI/180*20))*R);
+                double xF = ((x12/len*Math.cos(Math.PI/180*20) - y12/len*Math.sin(Math.PI/180*20))*R);
+                double yF = ((x12/len*Math.sin(Math.PI/180*20) + y12/len*Math.cos(Math.PI/180*20))*R);
  //               g.fillOval(xFrom+xF, yFrom+yF, 5, 5);    //точка виходу з кола
                 
-                int xI = (int) (((-x12)/len*Math.cos(Math.PI/180*degree) - (-y12)/len*Math.sin(Math.PI/180*degree))*R);
-                int yI = (int) (((-x12)/len*Math.sin(Math.PI/180*degree) + (-y12)/len*Math.cos(Math.PI/180*degree))*R);
+                double xI = (int) (((-x12)/len*Math.cos(Math.PI/180*degree) - (-y12)/len*Math.sin(Math.PI/180*degree))*R);
+                double yI = (int) (((-x12)/len*Math.sin(Math.PI/180*degree) + (-y12)/len*Math.cos(Math.PI/180*degree))*R);
 //                g.fillOval(xTo+xI, yTo+yI, 5, 5);
                 
                 
@@ -138,8 +146,8 @@ public class AutomatonPanel extends JPanel{
                 xp = xp/lenP;
                 yp = yp/lenP;
                 
-                int ctrlx =  (int) (xLen + xp*d/4);
-                int ctrly =  (int) (yLen + yp*d/4);
+                double ctrlx =  xLen + xp*d/4;
+                double ctrly =  yLen + yp*d/4;
                 
                 String cond = "";
                 if(xFrom < xTo){
@@ -171,31 +179,8 @@ public class AutomatonPanel extends JPanel{
                 yA = yA/lenA*(lenA-10);
                 xA += ctrlx;                //початок стрілки
                 yA += ctrly;
-
                 
-
-                double xArrow = xTo - xA;
-                double yArrow = yTo - yA;
-                double lenArrow = Math.sqrt(xArrow*xArrow + yArrow*yArrow);
-                xArrow /= lenArrow;
-                yArrow /= lenArrow;
-                double xW = - yArrow;
-                double yW = xArrow;
-                xW *= 5;
-                yW *= 5;
-                xW += xA;
-                yW += yA;
-
-                double xW1 = yArrow;
-                double yW1 = -xArrow;
-                xW1 *= 5;
-                yW1 *= 5;
-                xW1 += xA;
-                yW1 += yA;
-
-                int [] xarray = {(int)xW, xTo, (int)xW1};
-                int [] yarray = {(int)yW, yTo,(int) yW1};
-                g.fillPolygon(xarray, yarray, 3);
+                fillArrow(new Point((int)xA, (int)yA), new Point(xTo, yTo), g);
 
                 
                 Graphics2D g2 = (Graphics2D) g;
@@ -205,5 +190,36 @@ public class AutomatonPanel extends JPanel{
             }
             
         }
+    }
+    
+    /**
+     * Намалювати рінобедрений трикутник і залити його
+     * @param from середина основи трикутника
+     * @param to вершина трикутника
+     * @param g графічний контекст
+     */
+    public static void fillArrow(Point from, Point to, Graphics g){
+        double xArrow = to.x - from.x;
+        double yArrow = to.y - from.y;
+        double lenArrow = Math.sqrt(xArrow*xArrow + yArrow*yArrow);
+        xArrow /= lenArrow;
+        yArrow /= lenArrow;
+        double xW = - yArrow;
+        double yW = xArrow;
+        xW *= 5;
+        yW *= 5;
+        xW += from.x;
+        yW += from.y;
+
+        double xW1 = yArrow;
+        double yW1 = -xArrow;
+        xW1 *= 5;
+        yW1 *= 5;
+        xW1 += from.x;
+        yW1 += from.y;
+
+        int [] xarray = {(int)xW, to.x, (int)xW1};
+        int [] yarray = {(int)yW, to.y,(int) yW1};
+        g.fillPolygon(xarray, yarray, 3);
     }
 }

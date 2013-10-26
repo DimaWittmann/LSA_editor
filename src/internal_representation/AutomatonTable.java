@@ -14,8 +14,10 @@ public class AutomatonTable {
     public List<String> conditions;
     public List<String> ids;
     public List<Point> points;
+    public List<boolean[]> codes;
     
     public AutomatonTable() {
+        //TODO зробити красиве створення і ініціалізацію в одному місці
         connections = new ArrayList<>();
         conditions = new ArrayList<>();
         ids = new ArrayList<>();

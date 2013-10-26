@@ -11,10 +11,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import moore.Connection;
+import moore.compatible_coding.SynchroState;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -46,14 +45,19 @@ public class XMLParser{
     private void parseVertexes(NodeList vertexes){
         List<String> ids = new ArrayList<>();
         List<Point> points = new ArrayList<>();
+        List<boolean []> codes = new ArrayList<>();
         for (int i = 0; i < vertexes.getLength(); i++) {
             ids.add(vertexes.item(i).getTextContent());
             int x = Integer.parseInt(((Element)vertexes.item(i)).getAttribute("x"));
             int y = Integer.parseInt(((Element)vertexes.item(i)).getAttribute("y"));
             points.add(new Point(x, y));
+            boolean [] code = SynchroState.stringToCode(((Element)vertexes.item(i)).getAttribute("code"));
+            codes.add(code);
         }
+        //TODO таж проблема з встановленням даних
         Application.mediator.automatonTable.ids = ids;
         Application.mediator.automatonTable.points = points;
+        Application.mediator.automatonTable.codes = codes;
     }
     
     private void parseConditions(NodeList conditions){

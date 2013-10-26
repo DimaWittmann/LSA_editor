@@ -15,6 +15,7 @@ public class StatePanel extends JPanel{
     
     private String id;
     private String signal;
+    private String code;
 
     public StatePanel(String id, String signal) {
         this.id = id;
@@ -25,15 +26,21 @@ public class StatePanel extends JPanel{
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(Color.WHITE);
-        g.drawOval(0, 0, R*2, R*2);
+        g.fillOval(0, 0, R*2, R*2);
         g.setColor(Color.BLACK);
         g.drawOval(0, 0, R*2, R*2);
         g.drawString(id, R-5, R/2+3);
-        if(signal.charAt(0) == 'S' ){
-            g.drawString(String.valueOf(0), R-5, R*3/2);
+        
+        if(signal.length()>0){// TODO знову якісь костилі, пов'язано з тим, що при повторниму аналізі зникають сигнали
+            if(signal.charAt(0) == 'S' ){
+                g.drawString(String.valueOf(0), R-5, R*3/2);
+            }else{
+                g.drawString(signal, R-5, R*3/2);
+            }
         }else{
-            g.drawString(signal, R-5, R*3/2);
+            g.drawString("0", R-5, R*3/2);
         }
+        g.drawString(code, 0, R/2);
         g.drawLine(0, R, R*2, R);
     }
 
@@ -54,6 +61,10 @@ public class StatePanel extends JPanel{
     public Point getCenter(){
         Point center = new Point(getLocation().x+R-1, getLocation().y+R-1);
         return center;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
     
 }

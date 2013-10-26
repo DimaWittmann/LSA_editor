@@ -9,6 +9,10 @@ public class Connection {
     public int to;
     public int[] conditions;
     public String signalId;
+    /**
+     * Код, визначений сумісним кодуванням
+     */
+    public boolean[] code;
 
     public Connection(int from, int to, int[] conditions, String signalId) {
         this.conditions = conditions;
@@ -26,6 +30,32 @@ public class Connection {
         str += "|"+signalId;
         
         return str;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + this.from;
+        hash = 83 * hash + this.to;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Connection other = (Connection) obj;
+        if (this.from != other.from) {
+            return false;
+        }
+        if (this.to != other.to) {
+            return false;
+        }
+        return true;
     }
  
     

@@ -34,11 +34,10 @@ public class Mediator {
     public Mediator(){
         parser = new Parser();
         synthesizer = new Synthesizer();
-        automatonTable = new AutomatonTable();
         
         algPanel = new AlgPanel();
         wp = new WorkPanel();
-        automatonFrame = new AutomatonFrame();
+        cleanAutomaton();
         
         frame = new JFrame("Editor");
         frame.add(wp);
@@ -46,7 +45,13 @@ public class Mediator {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);     
     }
-    
+    /**
+     * Знищуємо всю інформацію про старий автомат
+     */
+    public final void cleanAutomaton(){
+        automatonTable = new AutomatonTable();
+        automatonFrame = new AutomatonFrame();
+    }
     public void setOptionalTitle(String title){
         frame.setTitle("Editor | " + title);
     }

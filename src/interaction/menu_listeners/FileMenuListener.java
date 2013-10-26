@@ -70,6 +70,7 @@ public class FileMenuListener implements ActionListener{
                         Application.mediator.setOptionalTitle(file.getName());
                         Application.mediator.parser = new Parser(new LSAmatrix(file));
                         Application.mediator.wp.inputArea.setText(Application.mediator.parser.createLSA());
+                        Application.mediator.cleanAutomaton();
                     } catch ( ClassNotFoundException | IOException ex) {
                         Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
                         Application.mediator.writeInfo(ex.getMessage());
@@ -79,8 +80,6 @@ public class FileMenuListener implements ActionListener{
 
 
             case SAVE_XML:
-
-
                 fc = new JFileChooser();
                 res = fc.showSaveDialog(Application.mediator.wp);
 

@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import moore.Connection;
+import moore.compatible_coding.SynchroState;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -26,10 +27,12 @@ import org.w3c.dom.Text;
 
 public class XMLCreator {
 
+    //TODO зробити красивий доступ до зачень
     List<Connection> connections;
     List<String> conditions;
     List<String> ids;
     List<Point> points;
+    List<boolean[]> codes;
     Document dom;
     File file;
 
@@ -59,6 +62,7 @@ public class XMLCreator {
         for (int i = 0; i < ids.size(); i++) {
             Element vertex = dom.createElement("vertex");
             vertex.setAttribute("zId", String.valueOf(i));
+            vertex.setAttribute("code", SynchroState.codeToString(codes.get(i)));
             if(points != null && points.size() == ids.size()){
                 vertex.setAttribute("x", String.valueOf(points.get(i).x));
                 vertex.setAttribute("y", String.valueOf(points.get(i).y));
@@ -121,6 +125,7 @@ public class XMLCreator {
         this.conditions = table.conditions;
         this.ids = table.ids;
         this.points = table.points;
+        this.codes = table.codes;
         
         createDocument();
         OutputFormat format = new OutputFormat(dom);

@@ -27,10 +27,7 @@ public class WorkPanel extends JPanel{
         initPanel();
     }
     
-    private void initPanel(){
-        
-        JMenuBar menuBar = new JMenuBar();
-        
+    private JMenu createFileMenu(){
         JMenu fileMenu = new JMenu("File");
         
         FileMenuListener fileListener = new FileMenuListener();
@@ -59,8 +56,12 @@ public class WorkPanel extends JPanel{
         fileMenu.add(saveXMLItem);
         fileMenu.add(loadXMLItem);
         
+        return fileMenu;
+    }
+    
+    private JMenu createRunMenu() {
         JMenu runMenu = new JMenu("Run");
-
+        
         RunMenuListener runListener = new RunMenuListener();
         
         JMenuItem runItem = new JMenuItem(RunMenuListener.RUN);
@@ -69,11 +70,18 @@ public class WorkPanel extends JPanel{
         validateItem.addActionListener(runListener);
         JMenuItem synthesize = new JMenuItem(RunMenuListener.SYNTHESIZE);
         synthesize.addActionListener(runListener);
+        JMenuItem analyze = new JMenuItem(RunMenuListener.ANALYZE);
+        analyze.addActionListener(runListener);
         
         runMenu.add(runItem);
         runMenu.add(validateItem);
         runMenu.add(synthesize);
+        runMenu.add(analyze);
         
+        return runMenu;
+    }
+    
+    private JMenu createDrawMenu(){
         DrawMenuListener drawListener = new DrawMenuListener();
         
         JMenu drawMenu = new JMenu("Show");
@@ -85,6 +93,18 @@ public class WorkPanel extends JPanel{
         
         drawMenu.add(drawAlgoItem);
         drawMenu.add(drawAutomatonItem);
+        
+        return drawMenu;
+    }
+    
+    private void initPanel(){
+        
+        JMenuBar menuBar = new JMenuBar();
+        
+        
+        JMenu fileMenu = createFileMenu();
+        JMenu runMenu = createRunMenu();
+        JMenu drawMenu = createDrawMenu();
         
         menuBar.add(fileMenu);
         menuBar.add(runMenu);
