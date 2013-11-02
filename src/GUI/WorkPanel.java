@@ -50,11 +50,19 @@ public class WorkPanel extends JPanel{
         loadXMLItem.addActionListener(fileListener);
         loadXMLItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, (ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)));
         
+        JMenuItem saveTableItem = new JMenuItem(FileMenuListener.SAVE_TABLE);
+        saveTableItem.addActionListener(fileListener);
+        
+        JMenuItem loadTableItem = new JMenuItem(FileMenuListener.LOAD_TABLE);
+        loadTableItem.addActionListener(fileListener);
+        
         fileMenu.add(newItem);
         fileMenu.add(saveItem);
         fileMenu.add(loadItem);
         fileMenu.add(saveXMLItem);
         fileMenu.add(loadXMLItem);
+        fileMenu.add(saveTableItem);
+        fileMenu.add(loadTableItem);
         
         return fileMenu;
     }
@@ -70,13 +78,17 @@ public class WorkPanel extends JPanel{
         validateItem.addActionListener(runListener);
         JMenuItem synthesize = new JMenuItem(RunMenuListener.SYNTHESIZE);
         synthesize.addActionListener(runListener);
-        JMenuItem analyze = new JMenuItem(RunMenuListener.ANALYZE);
-        analyze.addActionListener(runListener);
+        JMenuItem adjacent = new JMenuItem(RunMenuListener.ADJACENT);
+        adjacent.addActionListener(runListener);
+        JMenuItem trigers = new JMenuItem(RunMenuListener.CODE_TRIGERS);
+        trigers.addActionListener(runListener);
+        
         
         runMenu.add(runItem);
         runMenu.add(validateItem);
         runMenu.add(synthesize);
-        runMenu.add(analyze);
+        runMenu.add(adjacent);
+        runMenu.add(trigers);
         
         return runMenu;
     }
@@ -88,11 +100,16 @@ public class WorkPanel extends JPanel{
         
         JMenuItem drawAlgoItem = new JMenuItem(DrawMenuListener.DRAW_ALGO);
         drawAlgoItem.addActionListener(drawListener);
+        
         JMenuItem drawAutomatonItem = new JMenuItem(DrawMenuListener.DRAW_AUTOMATON);
         drawAutomatonItem.addActionListener(drawListener);
         
+        JMenuItem drawAutomatonTableItem = new JMenuItem(DrawMenuListener.DRAW_AUTOMATON_TABLE);
+        drawAutomatonTableItem.addActionListener(drawListener);
+        
         drawMenu.add(drawAlgoItem);
         drawMenu.add(drawAutomatonItem);
+        drawMenu.add(drawAutomatonTableItem);
         
         return drawMenu;
     }

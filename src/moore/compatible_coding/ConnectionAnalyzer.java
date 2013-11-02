@@ -17,7 +17,7 @@ import moore.Connection;
 public class ConnectionAnalyzer {
 
     //TODO розробити оптимізацію графу
-    //TODO доробити можливість повторного аналізу не змінюючи результат
+
     
     /**
      * Створити з зв'язків стани графа
@@ -311,7 +311,7 @@ public class ConnectionAnalyzer {
             
             for(Connection conn : zState.fromConnections){
                 if(!connections.contains(conn)){
-                    conn.code = code;
+                    
                     connections.add(conn);
                 }
             }

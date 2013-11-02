@@ -40,7 +40,11 @@ public class StatePanel extends JPanel{
         }else{
             g.drawString("0", R-5, R*3/2);
         }
-        g.drawString(code, 0, R/2);
+        if(code != null){
+            g.setColor(Color.RED);
+            g.drawString(code, 0, R/2);
+            g.setColor(Color.BLACK);
+        }
         g.drawLine(0, R, R*2, R);
     }
 

@@ -17,7 +17,7 @@ import static parser.Operator.Type.*;
  * Являє собою матричне представлення алгоритму
  * @author wittmann
  */
-public class LSAmatrix implements Serializable {
+public class LSAmatrix{
     public int [][] transitions;
     public String [] ids; 
     public List<List<Integer>> roads;

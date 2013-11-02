@@ -12,6 +12,7 @@ public class DrawMenuListener implements ActionListener{
 
     public final static String DRAW_AUTOMATON = "Show automaton";
     public final static String DRAW_ALGO = "Draw algorithm";
+    public final static String DRAW_AUTOMATON_TABLE = "Show automaton table";
     
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -25,6 +26,9 @@ public class DrawMenuListener implements ActionListener{
                 Application.mediator.algPanel.drawAlgoFrame();
                 break;
             
+            case DRAW_AUTOMATON_TABLE:
+                Application.mediator.showAutomatonTableFrame();
+                break;
         }
     }
 }

@@ -1,4 +1,5 @@
 package interaction;
+import GUI.AutomatonTableFrame;
 import interaction.menu_listeners.FileMenuListener;
 import GUI.WorkPanel;
 import GUI.algorithm.AlgPanel;
@@ -13,6 +14,7 @@ import javax.swing.JFrame;
 import moore.Synthesizer;
 import parser.ParseException;
 import parser.Parser;
+import xml.XMLCreator;
 
 /**
  *
@@ -30,6 +32,7 @@ public class Mediator {
     public LSAmatrix matrix;
     public AutomatonFrame automatonFrame;
     public AutomatonTable automatonTable;
+    public AutomatonTableFrame tableFrame;
     
     public Mediator(){
         parser = new Parser();
@@ -85,11 +88,23 @@ public class Mediator {
         wp.outputArea.setText(str +"\n" + wp.outputArea.getText());
     }
     
-    public void saveXML(File file){
-//        parseLSA();
-//        synthesizer.findAllConnetions();
+    public void saveToXML(File file){
         automatonFrame.panel.updateLocation();
-        synthesizer.saveToXML(file);
+
+        XMLCreator xmlP = new XMLCreator(file);
+        xmlP.writeToFile(this.automatonTable);
+    }
+    
+    
+    public void showConnections(){
+        writeInfo(automatonTable.getConnectionsInfo());
+    }
+
+    public void showAutomatonTableFrame() {
+        if(tableFrame == null){
+            tableFrame = new AutomatonTableFrame();
+        }
+        tableFrame.setVisible(true);
     }
     
 }

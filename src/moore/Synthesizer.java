@@ -1,10 +1,8 @@
 package moore;
 
 import interaction.Application;
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import xml.XMLCreator;
 
 /**
  *
@@ -83,29 +81,7 @@ public class Synthesizer {
             }
         }
 
-    }
-    
-    public String showConnections(){
-        List<Connection> connections = Application.mediator.automatonTable.connections;
-        
-        String str = "Conditions:";
-        for(String ids: Application.mediator.automatonTable.ids){
-            if(ids.charAt(0) == 'X'){
-                str += ids+" ";
-            }
-        }
-        str += "\n";
-        for (Connection conn: connections){
-            str += conn.toString()+"\n";
-        }
-        return str;
-    }
-    
-    public void saveToXML(File file){
-        XMLCreator xmlP = new XMLCreator(file);
-        xmlP.writeToFile(Application.mediator.automatonTable);
-    }
-    
+    }    
 }
 
 

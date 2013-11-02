@@ -47,9 +47,6 @@ public class AutomatonPanel extends JPanel{
             StatePanel panel = new StatePanel("Z"+String.valueOf(i), ids.get(i));
             if(codes != null){
                 panel.setCode(SynchroState.codeToString(codes.get(i)));
-            }else{
-                panel.setCode(SynchroState.codeToString(SynchroState.intToCode(i, 
-                        (int) Math.round(Math.ceil(Math.log(ids.size())/Math.log(2))))));
             }
             panel.addMouseMotionListener(mListener);
             panel.addMouseListener(mListener);

@@ -5,11 +5,9 @@ import internal_representation.AutomatonTable;
 import internal_representation.LSAmatrix;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import moore.Connection;
 import moore.compatible_coding.ConnectionAnalyzer;
 import moore.compatible_coding.ZState;
 
@@ -22,7 +20,8 @@ public class RunMenuListener implements ActionListener{
     public final static String RUN = "Run";
     public final static String VALIDATE = "Validate";
     public final static String SYNTHESIZE = "Synthesize automaton";
-    public final static String ANALYZE = "Analyze";
+    public final static String ADJACENT = "Adjacent coding";
+    public final static String CODE_TRIGERS = "Encode trigers";
     
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -51,14 +50,13 @@ public class RunMenuListener implements ActionListener{
             case SYNTHESIZE:
                 Application.mediator.parseLSA();
                 Application.mediator.synthesizer.findAllConnetions();
-                Application.mediator.writeInfo(Application.mediator.synthesizer.showConnections());
+                Application.mediator.writeInfo(Application.mediator.automatonTable.getConnectionsInfo());
                 break;
 
 
-            case ANALYZE:
+            case ADJACENT:
                 Map<Integer,ZState> states = ConnectionAnalyzer.createStates(Application.mediator.automatonTable.connections);
                 
-                //TODO зробити по людські
                 try {
                     ConnectionAnalyzer.encode(states);
                 } catch (Exception ex) {
@@ -71,6 +69,15 @@ public class RunMenuListener implements ActionListener{
                 Application.mediator.automatonTable.ids = table.ids;
                 Application.mediator.automatonTable.codes = table.codes;
                 Application.mediator.automatonFrame.panel.initPanels();
+                
+                Application.mediator.showConnections();
+                break;
+                
+                
+            case CODE_TRIGERS:
+                Application.mediator.automatonTable.codeTrigrers();
+                Application.mediator.tableFrame = null;
+                Application.mediator.writeInfo("Trigers encoded");
                 break;
         }
     }

@@ -1,18 +1,17 @@
 package moore;
 
+import java.io.Serializable;
+
 /**
  * Представлення дуги графа Мура
  * @author Wittman
  */
-public class Connection {
+public class Connection implements Serializable{
     public int from;
     public int to;
     public int[] conditions;
     public String signalId;
-    /**
-     * Код, визначений сумісним кодуванням
-     */
-    public boolean[] code;
+ 
 
     public Connection(int from, int to, int[] conditions, String signalId) {
         this.conditions = conditions;
@@ -28,7 +27,7 @@ public class Connection {
             str += String.valueOf(i)+" ";
         }
         str += "|"+signalId;
-        
+
         return str;
     }
 
