@@ -45,7 +45,9 @@ public class AutomatonTable extends AbstractTableModel
             for (int c : conn.conditions){
                 str += String.valueOf(c)+" ";
             }
-            str += "|" + SynchroState.codeToString(codes.get(conn.from));
+            if(codes != null){
+                str += "|" + SynchroState.codeToString(codes.get(conn.from));
+            }
             if(conn.signalId != null){
                 str += "|" + conn.signalId;
             }else{
@@ -91,12 +93,31 @@ public class AutomatonTable extends AbstractTableModel
             
         case 3:
             for(int i=0;i<conn.conditions.length;i++){
-                str += " " + conn.conditions[i] + " ";
+
+                if(conn.conditions[i] == 2){
+                    str += " 0 ";
+                }else if(conn.conditions[i] == 1){
+                    str += " 1 ";
+                }else if(conn.conditions[i] == 0){
+                    str += " - ";
+                }
             }
+
             return str;
             
         case 4:
-            return conn.signalId;
+            str = "";
+            for(String id : ids){
+                if(!(id.equals("S") || id.equals("0"))){
+                    
+                    if(id.equals(conn.signalId)){
+                        str += "1  ";
+                    }else{
+                        str += "0  ";
+                    }
+                }
+            }
+            return str;
             
         default:
             int i = columnIndex - 4;
@@ -123,7 +144,13 @@ public class AutomatonTable extends AbstractTableModel
                 }
                 return str;
             case 4:
-                return "Signal";
+                str = "";
+                for(String id : ids){
+                    if(!(id.equals("S") || id.equals("0"))){
+                        str += id + " ";
+                    }
+                }
+                return str;
                 
             default :
                 return "J"+(J.get(0).length-(column-5))+" K"+(J.get(0).length-(column-5));

@@ -14,6 +14,7 @@ import javax.swing.JTable;
 public class AutomatonTableFrame extends JFrame{
 
     public AutomatonTableFrame() throws HeadlessException {
+        super("Automaton table");
         
         JTable table = new JTable(Application.mediator.automatonTable);
         JScrollPane scrollPane = new JScrollPane(table);
