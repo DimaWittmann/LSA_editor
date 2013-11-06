@@ -20,9 +20,27 @@ public class AutomatonTable extends AbstractTableModel
     public List<String> ids;
     public List<Point> points;
     public List<boolean[]> codes;
-    public List<boolean[]> J;
-    public List<boolean[]> K;
+    public List<TrigerState[]> J;
+    public List<TrigerState[]> K;
     
+    
+    public enum TrigerState{ 
+        ONE, ZERO, DOES_NOT_MATTER;
+
+        @Override
+        public String toString() {
+            switch (this){
+                case DOES_NOT_MATTER:
+                    return "*";
+                case ONE:
+                    return "1";
+                case ZERO:
+                    return "0";
+                default:
+                    return "";
+            }
+        }
+    };
     
     public AutomatonTable() {
         //TODO зробити красиве створення і ініціалізацію в одному місці
@@ -122,7 +140,8 @@ public class AutomatonTable extends AbstractTableModel
         default:
             int i = columnIndex - 4;
             i = J.get(0).length - i;
-            return (J.get(rowIndex)[i]?"1":"0")+"   "+(K.get(rowIndex)[i]?"1":"0");
+            str = J.get(rowIndex)[i]+"    "+K.get(rowIndex)[i];
+            return str;
         }
 
     }
@@ -170,13 +189,15 @@ public class AutomatonTable extends AbstractTableModel
         for (int i = 0; i < connections.size(); i++) {
             int from = connections.get(i).from;
             int to = connections.get(i).to;
-            boolean []jtriger = new boolean[codes.get(0).length];
-            boolean []ktriger = new boolean[codes.get(0).length];
+            TrigerState []jtriger = new TrigerState[codes.get(0).length];
+            TrigerState []ktriger = new TrigerState[codes.get(0).length];
             for (int j = 0; j < codes.get(from).length; j++) {
                 if(codes.get(from)[j] == false){
-                    jtriger[j] = codes.get(to)[j];
+                    jtriger[j] = (codes.get(to)[j]) ? TrigerState.ONE : TrigerState.ZERO;
+                    ktriger[j] = TrigerState.DOES_NOT_MATTER;
                 }else{
-                    ktriger[j] = !codes.get(to)[j];
+                    ktriger[j] = (!codes.get(to)[j]) ? TrigerState.ONE : TrigerState.ZERO;
+                    jtriger[j] = TrigerState.DOES_NOT_MATTER;
                 }
             }
             J.add(jtriger);
