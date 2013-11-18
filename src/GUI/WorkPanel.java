@@ -82,13 +82,15 @@ public class WorkPanel extends JPanel{
         adjacent.addActionListener(runListener);
         JMenuItem trigers = new JMenuItem(RunMenuListener.CODE_TRIGERS);
         trigers.addActionListener(runListener);
-        
+        JMenuItem miniz = new JMenuItem(RunMenuListener.MINIMIZE);
+        miniz.addActionListener(runListener);
         
         runMenu.add(runItem);
         runMenu.add(validateItem);
         runMenu.add(synthesize);
         runMenu.add(adjacent);
         runMenu.add(trigers);
+        runMenu.add(miniz);
         
         return runMenu;
     }
@@ -133,12 +135,14 @@ public class WorkPanel extends JPanel{
         
         outputArea = new JTextArea();
         outputArea.setForeground(Color.RED);
-        Font font = new Font("Times New Roman", Font.PLAIN, 14);
+        Font font = new Font("Courier New", Font.PLAIN, 14);
         outputArea.setFont(font);
+        
+        JScrollPane outputScrollArea = new JScrollPane(outputArea);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.add(inputArea);
-        splitPane.add(outputArea);
+        splitPane.add(outputScrollArea);
         
         this.add(splitPane, BorderLayout.CENTER);
         

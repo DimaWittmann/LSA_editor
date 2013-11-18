@@ -85,7 +85,7 @@ public class Mediator {
      * @param str інфа
      */
     public void writeInfo(String str){
-        wp.outputArea.setText(str +"\n" + wp.outputArea.getText());
+        wp.outputArea.setText(wp.outputArea.getText() + str +"\n");
     }
     
     public void saveToXML(File file){

@@ -3,6 +3,7 @@ package interaction.menu_listeners;
 import interaction.Application;
 import internal_representation.AutomatonTable;
 import internal_representation.LSAmatrix;
+import internal_representation.minimizator.Minimizator;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class RunMenuListener implements ActionListener{
     public final static String SYNTHESIZE = "Synthesize automaton";
     public final static String ADJACENT = "Adjacent coding";
     public final static String CODE_TRIGERS = "Encode trigers";
+    public final static String MINIMIZE = "Minimaze trigers";
     
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -78,6 +80,19 @@ public class RunMenuListener implements ActionListener{
                 Application.mediator.automatonTable.codeTrigrers();
                 Application.mediator.tableFrame = null;
                 Application.mediator.writeInfo("Trigers encoded");
+                break;
+                
+            case MINIMIZE:
+                Minimizator minimizator = new Minimizator(Application.mediator.automatonTable);
+                Application.mediator.writeInfo(Minimizator.showTable(minimizator.ids, minimizator.signals));
+                minimizator.generateFunctions();
+                Application.mediator.writeInfo("Initial version:");
+                Application.mediator.writeInfo(Minimizator.showFunctions(minimizator.functions, minimizator.ids));
+                minimizator.minimize();
+                Application.mediator.writeInfo("Minimized version:");
+                Application.mediator.writeInfo(Minimizator.showFunctions(minimizator.minimize_functions, minimizator.ids));
+                Application.mediator.writeInfo("Result:");
+                Application.mediator.writeInfo(minimizator.analyzeMinimization());
                 break;
         }
     }

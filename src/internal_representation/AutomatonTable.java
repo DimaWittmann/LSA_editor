@@ -23,25 +23,6 @@ public class AutomatonTable extends AbstractTableModel
     public List<TrigerState[]> J;
     public List<TrigerState[]> K;
     
-    
-    public enum TrigerState{ 
-        ONE, ZERO, DOES_NOT_MATTER;
-
-        @Override
-        public String toString() {
-            switch (this){
-                case DOES_NOT_MATTER:
-                    return "*";
-                case ONE:
-                    return "1";
-                case ZERO:
-                    return "0";
-                default:
-                    return "";
-            }
-        }
-    };
-    
     public AutomatonTable() {
         //TODO зробити красиве створення і ініціалізацію в одному місці
         connections = new ArrayList<>();
@@ -85,9 +66,9 @@ public class AutomatonTable extends AbstractTableModel
     @Override
     public int getColumnCount() {
         if( J == null || K == null){ 
-            return 5;
+            return 6;
         }else{
-            return 5 + J.get(0).length;
+            return 6 + J.get(0).length;
         }
     }
 
@@ -97,19 +78,21 @@ public class AutomatonTable extends AbstractTableModel
         String str = "";
         switch(columnIndex){
         case 0:
+                return rowIndex;
+        case 1:
             
             str = "Z" + conn.from + "->" + "Z"+conn.to;
             return str;
             
-        case 1:
+        case 2:
             str = SynchroState.codeToString(codes.get(conn.from));
             return str;
         
-        case 2:
+        case 3:
             str = SynchroState.codeToString(codes.get(conn.to));
             return str;
             
-        case 3:
+        case 4:
             for(int i=0;i<conn.conditions.length;i++){
 
                 if(conn.conditions[i] == 2){
@@ -123,7 +106,7 @@ public class AutomatonTable extends AbstractTableModel
 
             return str;
             
-        case 4:
+        case 5:
             str = "";
             for(String id : ids){
                 if(!(id.equals("S") || id.equals("0"))){
@@ -138,7 +121,7 @@ public class AutomatonTable extends AbstractTableModel
             return str;
             
         default:
-            int i = columnIndex - 4;
+            int i = columnIndex - 5;
             i = J.get(0).length - i;
             str = J.get(rowIndex)[i]+"    "+K.get(rowIndex)[i];
             return str;
@@ -151,18 +134,20 @@ public class AutomatonTable extends AbstractTableModel
      
         switch(column){
             case 0:
-                return "Transit";
+                return "№";
             case 1:
+                return "Transit";
+            case 2:
                 return "Start";
-            case 2: 
+            case 3: 
                 return "Destination";
-            case 3:
+            case 4:
                 String str = "";
                 for(String cond : conditions){
                     str += cond + " ";
                 }
                 return str;
-            case 4:
+            case 5:
                 str = "";
                 for(String id : ids){
                     if(!(id.equals("S") || id.equals("0"))){
@@ -172,7 +157,7 @@ public class AutomatonTable extends AbstractTableModel
                 return str;
                 
             default :
-                return "J"+(J.get(0).length-(column-5))+" K"+(J.get(0).length-(column-5));
+                return "J"+(J.get(0).length-(column-6))+" K"+(J.get(0).length-(column-6));
         }
 
     }
