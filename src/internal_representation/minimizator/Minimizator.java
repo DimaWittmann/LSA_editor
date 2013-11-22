@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.omg.Dynamic.Parameter;
 
 /**
  *
@@ -166,9 +165,9 @@ public class Minimizator {
         }
         Map<String, List<TrigerState[]>> undef_functions = generateFunctions(TrigerState.DOES_NOT_MATTER);
         
-        for (Map.Entry<String, List<TrigerState[]>> entry : functions.entrySet()) {
-            String id = entry.getKey();
-            List<TrigerState[]> signal = entry.getValue();
+        for (String id : functions.keySet()) {
+
+            List<TrigerState[]> signal = minimize_functions.get(id);
             List<TrigerState[]> dom_signal = undef_functions.get(id);
             
             boolean flag = true;
@@ -189,10 +188,10 @@ public class Minimizator {
                                 }
                             }
                             if(index >= 0){
-                                flag = true;
-                                
                                 signal.get(i)[index] = TrigerState.DOES_NOT_MATTER;
                                 signal.remove(j);
+                                
+                                flag = true;
                             }
                             
                         }
@@ -215,6 +214,54 @@ public class Minimizator {
                             flag = true;
 
                             signal.get(i)[index] = TrigerState.DOES_NOT_MATTER;
+                            dom_signal.remove(j);
+                        }
+                    }
+                    
+                }
+                //прибрати повторення коду
+                
+                for (int i = 0; i < dom_signal.size(); i++) {
+                    for (int j = 0; j < signal.size(); j++) {
+                        if(i != j){
+                            int index = -1;
+                            for (int k = 0; k < signal.get(j).length; k++) {
+                                if(dom_signal.get(i)[k] != signal.get(j)[k]){
+                                    if(index == -1){
+                                        index = k;
+                                    }else{
+                                        index = -2;
+                                        break;
+                                    }
+                                }
+                            }
+                            if(index >= 0){
+                                dom_signal.get(i)[index] = TrigerState.DOES_NOT_MATTER;
+                                dom_signal.remove(j);
+                                
+                                flag = true;
+                            }
+                            
+                        }
+                    }
+                    
+                    
+                    for (int j = 0; j < dom_signal.size(); j++) {
+                        int index = -1;
+                        for (int k = 0; k < dom_signal.get(j).length; k++) {
+                            if(dom_signal.get(i)[k] != dom_signal.get(j)[k]){
+                                if(index == -1){
+                                    index = k;
+                                }else{
+                                    index = -2;
+                                    break;
+                                }
+                            }
+                        }
+                        if(index >= 0){
+                            flag = true;
+
+                            dom_signal.get(i)[index] = TrigerState.DOES_NOT_MATTER;
                             dom_signal.remove(j);
                         }
                     }

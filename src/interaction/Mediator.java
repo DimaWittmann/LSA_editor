@@ -1,6 +1,5 @@
 package interaction;
 import GUI.AutomatonTableFrame;
-import interaction.menu_listeners.FileMenuListener;
 import GUI.WorkPanel;
 import GUI.algorithm.AlgPanel;
 import GUI.automaton.AutomatonFrame;
