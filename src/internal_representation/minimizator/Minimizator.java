@@ -323,4 +323,113 @@ public class Minimizator {
         
         return str;
     }
+    
+    public String ganerateVHDL(){
+        String tamplate = 
+                        "library ieee\n" +
+                        "use ieee.std_logic_1164.all;\n" +
+                        
+                        "entity KC is\n" +
+                        "port(  	"+
+                               "%s" +
+                        ");\n" +
+                        "end KC;\n" +
+                        
+                        "architecture arch of KC is\n" +
+                        "begin\n" +
+                        "process(" +
+                        "%s" +
+                        ")\n" +
+                        "begin\n" +
+                        "%s\n" +
+                        "end process;\n" +
+                        "end arch;"
+                ;
+        
+        
+        String ports = "";
+        for(int i=0; i<ids.size();i++){
+            ports += ids.get(i) + ": in std_logic";
+            if(i != ids.size() - 1){
+                ports += ";";
+            }
+            ports += "\n";
+            
+            if(ids.get(i).charAt(0) ==  'Q'){
+                ports += ids.get(i) + "_out: out std_logic";
+                if(i != ids.size() - 1){
+                    ports += ";";
+                }
+                ports += "\n";
+            }
+            
+        }
+        
+        String signal = "";
+        for(int i=0; i<ids.size();i++){
+            signal += ids.get(i);
+            if(i < ids.size()-1){
+                signal += ", ";
+            }else{
+                signal += " ";
+            }
+        }
+        
+        String cirсuit = "";
+        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
+            String string = entry.getKey();
+            List<TrigerState[]> list = entry.getValue();
+            String line = generateTerm(string, minimize_functions.get(string));
+            cirсuit += line + ";\n";
+        }
+        
+        return String.format(tamplate, ports, signal, cirсuit);
+    }
+    
+    public String generateTerm(String id, List<TrigerState[]> signal){
+        BiNode start = null;
+        for (int i=0;i<signal.size();i++) {
+            int count_and = 0;
+            for (int j = 0; j < signal.get(i).length; j++) {
+                
+                if(signal.get(i)[j] != TrigerState.DOES_NOT_MATTER){
+                    if(start  == null){
+                        if (signal.get(i)[j] == TrigerState.ONE){
+                            start = new BiNode(ids.get(j), LogicElement.SIGNAL);
+                        }else{
+                            start = new BiNode("not "+ids.get(j), LogicElement.SIGNAL);
+                        }
+                        count_and++;
+                    }else{
+                        
+                        if(count_and != 0){
+                            start = start.addChild(new BiNode("and", LogicElement.AND));
+                        }
+                        if (signal.get(i)[j] == TrigerState.ONE){
+                            start = start.addChild(new BiNode(ids.get(j), LogicElement.SIGNAL));
+                            
+                        }else{
+                            start = start.addChild(new BiNode("not "+ids.get(j), LogicElement.SIGNAL));
+                        }
+                        count_and++;
+                        
+                    }
+                    
+                    
+                }
+                
+            }
+            
+            if(i < signal.size() - 1){
+                start = start.addChild(new BiNode("or", LogicElement.OR));
+            }
+            
+        }
+        
+        
+        String result = "";
+        result += id + " <= " + start.toString();
+        
+        return result;
+    }
 }

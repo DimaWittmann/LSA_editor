@@ -56,6 +56,9 @@ public class WorkPanel extends JPanel{
         JMenuItem loadTableItem = new JMenuItem(FileMenuListener.LOAD_TABLE);
         loadTableItem.addActionListener(fileListener);
         
+        JMenuItem saveVHDLItem = new JMenuItem(FileMenuListener.SAVE_VHDL);
+        saveVHDLItem.addActionListener(fileListener);
+        
         fileMenu.add(newItem);
         fileMenu.add(saveItem);
         fileMenu.add(loadItem);
@@ -63,6 +66,7 @@ public class WorkPanel extends JPanel{
         fileMenu.add(loadXMLItem);
         fileMenu.add(saveTableItem);
         fileMenu.add(loadTableItem);
+        fileMenu.add(saveVHDLItem);
         
         return fileMenu;
     }

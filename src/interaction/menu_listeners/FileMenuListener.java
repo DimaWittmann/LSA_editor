@@ -4,14 +4,17 @@ import GUI.WorkPanel;
 import interaction.Application;
 import internal_representation.AutomatonTable;
 import internal_representation.LSAmatrix;
+import internal_representation.minimizator.Minimizator;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Writer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -33,6 +36,7 @@ public class FileMenuListener implements ActionListener{
     public final static String LOAD_XML = "Load automaton from XML";
     public final static String SAVE_TABLE = "Save table";
     public final static String LOAD_TABLE = "Load table";
+    public final static String SAVE_VHDL = "Save as VHDL";
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -91,7 +95,6 @@ public class FileMenuListener implements ActionListener{
 
                 if(res == JFileChooser.APPROVE_OPTION){
                     File file = fc.getSelectedFile();
-
                     Application.mediator.saveToXML(file);
                 }
                 break;
@@ -130,7 +133,7 @@ public class FileMenuListener implements ActionListener{
 
                         oos.writeObject(Application.mediator.automatonTable);
                         oos.flush();
-                        
+                        Application.mediator.writeInfo("File saved");
                     } catch (IOException ex) {
                         Logger.getLogger(FileMenuListener.class.getName()).log(Level.SEVERE, null, ex);
                         Application.mediator.writeInfo(ex.getMessage());
@@ -149,10 +152,34 @@ public class FileMenuListener implements ActionListener{
                         FileInputStream fis = new FileInputStream(file);
                         ObjectInputStream ois = new ObjectInputStream(fis);
                         Application.mediator.automatonTable = (AutomatonTable) ois.readObject();
+                        Application.mediator.writeInfo("Table loaded");
                     } catch ( ClassNotFoundException | IOException ex) {
                         Logger.getLogger(WorkPanel.class.getName()).log(Level.SEVERE, null, ex);
                         Application.mediator.writeInfo(ex.getMessage());
                     } 
+                }
+                break;
+                
+            case SAVE_VHDL:
+                
+                Minimizator minimizator = new Minimizator(Application.mediator.automatonTable);
+                minimizator.generateFunctions();
+                minimizator.minimize();
+                String program = minimizator.ganerateVHDL();
+                
+
+                fc = new JFileChooser();
+                res = fc.showOpenDialog(Application.mediator.wp);
+                if(res == JFileChooser.APPROVE_OPTION){
+                    File file = fc.getSelectedFile();
+                    try {
+                        Writer writer = new FileWriter(file);
+                        writer.write(program);
+                        writer.flush();
+                        Application.mediator.writeInfo("File saved");
+                    } catch (IOException ex) {
+                        Logger.getLogger(FileMenuListener.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 break;
         }
