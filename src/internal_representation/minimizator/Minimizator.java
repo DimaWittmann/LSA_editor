@@ -326,7 +326,7 @@ public class Minimizator {
     
     public String ganerateVHDL(){
         String tamplate = 
-                        "library ieee\n" +
+                        "library ieee;\n" +
                         "use ieee.std_logic_1164.all;\n" +
                         
                         "entity KC is\n" +
@@ -350,19 +350,21 @@ public class Minimizator {
         String ports = "";
         for(int i=0; i<ids.size();i++){
             ports += ids.get(i) + ": in std_logic";
-            if(i != ids.size() - 1){
+            ports += ";";
+
+            ports += "\n";            
+        }
+        int k=0;
+        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
+            String string = entry.getKey();
+            List<TrigerState[]> list = entry.getValue();
+            
+            ports += string + ":out std_logic";
+            if(k != minimize_functions.size() - 1){
                 ports += ";";
             }
             ports += "\n";
-            
-            if(ids.get(i).charAt(0) ==  'Q'){
-                ports += ids.get(i) + "_out: out std_logic";
-                if(i != ids.size() - 1){
-                    ports += ";";
-                }
-                ports += "\n";
-            }
-            
+            k++;
         }
         
         String signal = "";
