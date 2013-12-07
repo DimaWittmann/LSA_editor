@@ -20,8 +20,13 @@ public class Minimizator {
     public List<TrigerState[]> K;
     public Map<String, List<TrigerState[]>> functions;
     public Map<String, List<TrigerState[]>> minimize_functions;
+    
+    public Map<String, List<boolean[]>> y_functions;
+    
+    public AutomatonTable table;
 
     public Minimizator(AutomatonTable table) {
+        this.table = table;
         signals= new ArrayList<>();
         ids= new ArrayList<>();
         J = table.J;
@@ -39,8 +44,6 @@ public class Minimizator {
             ids.add("Q"+j);
         }
         ids.addAll(table.conditions);
-        
-        
         
         for (int i = 0; i < table.connections.size(); i++) {
             TrigerState [] new_signals = new TrigerState[places];
@@ -69,6 +72,16 @@ public class Minimizator {
                 }
             }
             signals.add(new_signals);
+        }
+        //генерація y
+        y_functions = new HashMap<>();
+        for (int i = 0; i < table.connections.size(); i++) {
+            if(table.connections.get(i).signalId != null){
+                if(!y_functions.containsKey(table.connections.get(i).signalId)){
+                    y_functions.put(table.connections.get(i).signalId, new ArrayList<boolean[]>());
+                }
+                y_functions.get(table.connections.get(i).signalId).add(table.codes.get(i));
+            }
         }
         
     }
@@ -123,6 +136,31 @@ public class Minimizator {
        return tmp_functions;
     }
     
+    public Map<String, List<TrigerState[]>> generateYFunctions(){
+        Map<String, List<TrigerState[]>> tmp_functions = new HashMap<>();
+        
+        for (Map.Entry<String, List<boolean[]>> entry : y_functions.entrySet()) {
+            String string = entry.getKey();
+            List<boolean[]> list = entry.getValue();
+
+            for (int i = 0; i < list.size(); i++) {
+                TrigerState new_state[] = new TrigerState[list.get(i).length];
+                for (int j = 0; j < list.get(i).length; j++) {
+                    new_state[j] = list.get(i)[j]?TrigerState.ONE:TrigerState.ZERO;
+                }
+                if(!tmp_functions.containsKey(string)){
+                    tmp_functions.put(string, new ArrayList<TrigerState[]>());
+                }
+                if(!tmp_functions.get(string).contains(new_state)){
+                    tmp_functions.get(string).add(new_state);
+                }
+            }
+            
+        }
+       
+        
+        return tmp_functions;
+    }
     public static String showFunctions(Map<String, List<TrigerState[]>> functions, List<String> ids){
         String str = "";
         
@@ -325,67 +363,89 @@ public class Minimizator {
     }
     
     public String ganerateVHDL(){
+        
+        
+        String ports = "clock, reset, set: in std_logic;\n";
+        
+        for (Map.Entry<String, List<boolean[]>> entry : y_functions.entrySet()) {
+            String string = entry.getKey();
+            ports += string + ", ";
+        }
+        ports = ports.substring(0, ports.length()-3); //прибрати ", "
+        ports += ": out std_logic;\n";
+        
+        for (int  i = 0;  i < table.conditions.size();  i++) {
+            ports += table.conditions.get(i);
+            if(i != table.conditions.size()-1){
+                ports += ", ";
+            }
+        }
+        ports += ": in std_logic\n";
+        
+        String signal = "signal ";
+        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
+            signal += entry.getKey() +", ";
+        }
+        for (int i = 0; i < ids.size(); i++) {
+            signal += ids.get(i);
+            if(i != ids.size()- 1 ){
+                signal += ", ";
+            }
+        }
+        
+        signal += ":std_logic; ";
+
+        String cirсuit = "";
+        
+        
+        for (int i = 0; i < J.get(0).length; i++) {
+            cirсuit += "jk"+(i+1)+ " jk_trigger port map (clock, reset, set, "+ "J"+(i+1)+ ", "+"K"+(i+1)+ ", Q"+ i+");\n";
+        }
+        
+        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
+            String string = entry.getKey();
+            List<TrigerState[]> list = entry.getValue();
+            String line = generateTerm(string, list);
+            cirсuit += line + ";\n";
+        }
+        
+        for (Map.Entry<String, List<TrigerState[]>> entry : generateYFunctions().entrySet()) {
+            String string = entry.getKey();
+            List<TrigerState[]> list = entry.getValue();
+            if(!"S".equals(string)){
+                String line = generateTerm(string, list);
+                cirсuit += line + ";\n";
+            }
+            
+        }
+        
         String tamplate = 
                         "library ieee;\n" +
                         "use ieee.std_logic_1164.all;\n" +
                         
                         "entity KC is\n" +
                         "port(  	"+
-                               "%s" +
+                               ports +
                         ");\n" +
+                        "component jk_trigger is\n" +
+                        "\n" +
+                        signal+
+                        "port (\n" +
+                        "clock, Clr, Set, J, K : in  std_logic;\n" +
+                        "Q : out std_logic);\n" +
+                        "end component;\n"+
                         "end KC;\n" +
                         
                         "architecture arch of KC is\n" +
+                       
                         "begin\n" +
-                        "process(" +
-                        "%s" +
-                        ")\n" +
-                        "begin\n" +
-                        "%s\n" +
-                        "end process;\n" +
+                       
+                        cirсuit +
+                 
                         "end arch;"
                 ;
         
-        
-        String ports = "";
-        for(int i=0; i<ids.size();i++){
-            ports += ids.get(i) + ": in std_logic";
-            ports += ";";
-
-            ports += "\n";            
-        }
-        int k=0;
-        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
-            String string = entry.getKey();
-            List<TrigerState[]> list = entry.getValue();
-            
-            ports += string + ":out std_logic";
-            if(k != minimize_functions.size() - 1){
-                ports += ";";
-            }
-            ports += "\n";
-            k++;
-        }
-        
-        String signal = "";
-        for(int i=0; i<ids.size();i++){
-            signal += ids.get(i);
-            if(i < ids.size()-1){
-                signal += ", ";
-            }else{
-                signal += " ";
-            }
-        }
-        
-        String cirсuit = "";
-        for (Map.Entry<String, List<TrigerState[]>> entry : minimize_functions.entrySet()) {
-            String string = entry.getKey();
-            List<TrigerState[]> list = entry.getValue();
-            String line = generateTerm(string, minimize_functions.get(string));
-            cirсuit += line + ";\n";
-        }
-        
-        return String.format(tamplate, ports, signal, cirсuit);
+        return tamplate;
     }
     
     public String generateTerm(String id, List<TrigerState[]> signal){
